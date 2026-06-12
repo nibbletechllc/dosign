@@ -17,6 +17,8 @@ export class DosignFieldChip extends Component {
         pageH: Number,
         color: String,
         label: String,
+        value: { type: [Object, { value: null }], optional: true },
+        editable: { type: Boolean, optional: true },
         onUpdate: Function,
         onRemove: Function,
     };
@@ -29,13 +31,20 @@ export class DosignFieldChip extends Component {
 
     get style() {
         const i = this.props.item;
+        const color = this.props.color;
+        const filled = !!this.props.value;
+        const bg = filled ? "#ffffff" : `${color}22`;
+        const cursor = this.props.editable === false ? "default" : "move";
         return `left:${i.pos_x * 100}%;top:${i.pos_y * 100}%;` +
             `width:${i.width * 100}%;height:${i.height * 100}%;` +
-            `border-color:${this.props.color};` +
-            `background-color:${this.props.color}22;color:${this.props.color};`;
+            `border-color:${color};background-color:${bg};` +
+            `color:${color};cursor:${cursor};`;
     }
 
     onPointerDown(ev, mode) {
+        if (this.props.editable === false) {
+            return;
+        }
         ev.preventDefault();
         ev.stopPropagation();
         this._mode = mode;

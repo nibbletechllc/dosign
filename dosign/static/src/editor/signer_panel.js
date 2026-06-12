@@ -9,6 +9,7 @@ export class DosignSignerPanel extends Component {
         signers: Array,
         items: Array,
         activeSignerId: { type: [Number, { value: null }], optional: true },
+        readonly: { type: Boolean, optional: true },
         onSelect: Function,
         onAdd: Function,
         onUpdate: Function,

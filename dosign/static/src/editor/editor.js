@@ -60,11 +60,12 @@ export class DosignEditor extends Component {
         );
         this.state.signers = await this.orm.searchRead(
             "dosign.signer", [["document_id", "=", this.documentId]],
-            ["name", "email", "color", "sequence", "state"]
+            ["name", "email", "color", "sequence", "state", "signature_image", "initials_image"]
         );
         this.state.items = await this.orm.searchRead(
             "dosign.item", [["document_id", "=", this.documentId]],
-            ["field_type_id", "signer_id", "page", "pos_x", "pos_y", "width", "height", "required"]
+            ["field_type_id", "signer_id", "page", "pos_x", "pos_y", "width", "height",
+             "required", "value_text"]
         );
         if (this.state.signers.length) {
             this.state.activeSignerId = this.state.signers[0].id;

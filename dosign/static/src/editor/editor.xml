@@ -39,11 +39,13 @@
                             signers="state.signers"
                             items="state.items"
                             activeSignerId="state.activeSignerId"
+                            readonly="readonly"
                             onSelect="(id) => this.selectSigner(id)"
                             onAdd="() => this.addSigner()"
                             onUpdate="(id, vals) => this.updateSigner(id, vals)"
                             onRemove="(id) => this.removeSigner(id)"/>
                         <DosignFieldPalette
+                            t-if="!readonly"
                             fieldTypes="state.fieldTypes"
                             activeSigner="activeSigner"/>
                     </div>
@@ -53,6 +55,7 @@
                         fieldTypes="state.fieldTypes"
                         signers="state.signers"
                         activeSignerId="state.activeSignerId"
+                        editable="!readonly"
                         onAddItem="(ft, page, x, y) => this.addItem(ft, page, x, y)"
                         onUpdateItem="(id, vals) => this.updateItem(id, vals)"
                         onRemoveItem="(id) => this.removeItem(id)"/>
