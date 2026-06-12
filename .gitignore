@@ -25,5 +25,5 @@ odoo.conf
 *.p12
 *.pfx
 
-# Claude Code local settings
-.claude/settings.local.json
+# Claude Code local state
+.claude/
