@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="dosign.UploadModal">
+        <Dialog title="'Upload a document'" size="'lg'">
+            <div class="o_dosign_upload">
+                <div class="o_dosign_dropzone"
+                     t-att-class="{ 'o_dragging': state.dragging, 'o_uploading': state.uploading }"
+                     t-on-dragover="onDragOver"
+                     t-on-dragleave="onDragLeave"
+                     t-on-drop="onDrop"
+                     t-on-click="triggerPicker">
+                    <input type="file" class="d-none" t-ref="fileInput"
+                           accept="application/pdf" t-on-change="onFileChange"/>
+                    <t t-if="state.uploading">
+                        <i class="fa fa-spinner fa-spin fa-2x text-muted"/>
+                        <p class="mt-2 mb-0">Uploading…</p>
+                    </t>
+                    <t t-else="">
+                        <i class="fa fa-cloud-upload fa-3x text-primary"/>
+                        <p class="mt-2 mb-0 fw-bold">Drag &amp; drop a PDF here</p>
+                        <p class="text-muted small mb-0">or click to browse · PDF up to 25 MB</p>
+                    </t>
+                </div>
+
+                <t t-if="state.templates.length">
+                    <div class="o_dosign_divider"><span>or start from a template</span></div>
+                    <div class="o_dosign_template_grid">
+                        <div t-foreach="state.templates" t-as="tpl" t-key="tpl.id"
+                             class="o_dosign_template_card">
+                            <div class="o_dosign_template_name">
+                                <i class="fa fa-file-text-o me-1"/>
+                                <t t-esc="tpl.name"/>
+                            </div>
+                            <div class="text-muted small">
+                                <t t-esc="tpl.item_count"/> fields ·
+                                <t t-esc="tpl.role_count"/> signers
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary mt-2"
+                                    t-on-click="() => this.useTemplate(tpl.id)">
+                                Use
+                            </button>
+                        </div>
+                    </div>
+                </t>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-secondary" t-on-click="() => this.props.close()">
+                    Cancel
+                </button>
+            </t>
+        </Dialog>
+    </t>
+
+</templates>

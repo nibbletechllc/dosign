@@ -5,8 +5,8 @@
         <field name="name">dosign.document.list</field>
         <field name="model">dosign.document</field>
         <field name="arch" type="xml">
-            <list>
-                <field name="create_date" string="Date" widget="date"/>
+            <list js_class="dosign_document_list" create="false">
+                <field name="create_date" string="Date"/>
                 <field name="name"/>
                 <field name="reference" optional="hide"/>
                 <field name="user_id" string="Sent by" widget="many2one_avatar_user"/>
@@ -20,6 +20,8 @@
                        decoration-success="state == 'signed'"
                        decoration-danger="state == 'expired'"
                        decoration-muted="state in ('draft', 'cancelled')"/>
+                <button name="action_open_editor" type="object" string="Continue editing"
+                        icon="fa-pencil" invisible="state != 'draft'"/>
                 <button name="action_resend" type="object" string="Resend"
                         icon="fa-paper-plane" invisible="state not in ('sent', 'partial')"/>
                 <button name="action_resend" type="object" string="Send again"
@@ -74,8 +76,10 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_send" type="object" string="Send"
+                    <button name="action_open_editor" type="object" string="Open Editor"
                             class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_send" type="object" string="Send"
+                            invisible="state != 'draft'"/>
                     <button name="action_sign_now" type="object" string="Sign Now"
                             invisible="state != 'draft'"/>
                     <button name="action_resend" type="object" string="Resend"

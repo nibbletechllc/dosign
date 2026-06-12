@@ -1,0 +1,201 @@
+.o_dosign_editor {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #f7f7f9;
+
+    .o_dosign_editor_header {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .5rem .75rem;
+        background: #fff;
+        border-bottom: 1px solid #dee2e6;
+
+        .o_dosign_doc_name {
+            max-width: 360px;
+            font-weight: 600;
+            border: 1px solid transparent;
+            &:hover, &:focus { border-color: #dee2e6; }
+        }
+        .o_dosign_back { color: #6c757d; }
+    }
+
+    .o_dosign_editor_body {
+        flex: 1;
+        display: flex;
+        min-height: 0;
+    }
+
+    .o_dosign_sidebar {
+        width: 280px;
+        flex: 0 0 280px;
+        background: #fff;
+        border-right: 1px solid #dee2e6;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .o_dosign_panel_title {
+        font-weight: 600;
+        font-size: .8rem;
+        text-transform: uppercase;
+        color: #6c757d;
+        padding: .75rem .75rem .25rem;
+    }
+}
+
+// --- Signer panel ---
+.o_dosign_signers {
+    border-bottom: 1px solid #eee;
+    padding-bottom: .5rem;
+
+    .o_dosign_signer_card {
+        margin: .25rem .5rem;
+        padding: .5rem;
+        border: 1px solid #e9ecef;
+        border-radius: .375rem;
+        cursor: pointer;
+        &.o_active { border-color: #714B67; box-shadow: 0 0 0 1px #714B67; }
+    }
+    .o_dosign_color_dot {
+        width: 14px; height: 14px; border-radius: 50%; display: inline-block;
+    }
+}
+
+// --- Field palette ---
+.o_dosign_palette {
+    flex: 1;
+    .o_dosign_palette_grid {
+        display: flex;
+        flex-direction: column;
+        gap: .25rem;
+        padding: 0 .5rem;
+    }
+    .o_dosign_palette_item {
+        padding: .4rem .5rem;
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-left: 3px solid #714B67;
+        border-radius: .25rem;
+        font-size: .85rem;
+        cursor: grab;
+        user-select: none;
+        &:hover { background: #f1f3f5; }
+    }
+}
+
+// --- Canvas ---
+.o_dosign_canvas_wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    .o_dosign_canvas_toolbar {
+        display: flex;
+        align-items: center;
+        gap: .25rem;
+        padding: .35rem .75rem;
+        background: #fff;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .o_dosign_canvas_scroll {
+        flex: 1;
+        overflow: auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .o_dosign_page {
+        position: relative;
+        box-shadow: 0 1px 6px rgba(0, 0, 0, .15);
+        background: #fff;
+        canvas.o_dosign_pdf_page { display: block; }
+    }
+}
+
+// --- Field chip ---
+.o_dosign_chip {
+    position: absolute;
+    border: 1.5px dashed;
+    border-radius: 3px;
+    font-size: .7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: move;
+    overflow: hidden;
+    box-sizing: border-box;
+
+    .o_dosign_chip_label {
+        pointer-events: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0 2px;
+    }
+    .o_dosign_chip_del {
+        position: absolute;
+        top: -8px; right: -8px;
+        width: 16px; height: 16px;
+        border: none;
+        border-radius: 50%;
+        background: #c0392b;
+        color: #fff;
+        font-size: .6rem;
+        line-height: 1;
+        display: none;
+        padding: 0;
+    }
+    .o_dosign_chip_resize {
+        position: absolute;
+        bottom: 0; right: 0;
+        width: 12px; height: 12px;
+        cursor: nwse-resize;
+        background: linear-gradient(135deg, transparent 50%, currentColor 50%);
+    }
+    &:hover .o_dosign_chip_del { display: block; }
+}
+
+// --- Upload modal ---
+.o_dosign_upload {
+    .o_dosign_dropzone {
+        border: 2px dashed #ced4da;
+        border-radius: .5rem;
+        padding: 2.5rem 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all .15s ease;
+        &:hover, &.o_dragging { border-color: #714B67; background: #faf6f9; }
+    }
+    .o_dosign_divider {
+        text-align: center;
+        margin: 1.25rem 0 .75rem;
+        border-top: 1px solid #e9ecef;
+        span {
+            position: relative;
+            top: -.7rem;
+            background: #fff;
+            padding: 0 .75rem;
+            color: #6c757d;
+            font-size: .85rem;
+        }
+    }
+    .o_dosign_template_grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: .75rem;
+    }
+    .o_dosign_template_card {
+        border: 1px solid #e9ecef;
+        border-radius: .375rem;
+        padding: .75rem;
+        .o_dosign_template_name { font-weight: 600; }
+    }
+}

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="dosign.PdfCanvas">
+        <div class="o_dosign_canvas_wrap">
+            <div class="o_dosign_canvas_toolbar">
+                <button class="btn btn-sm btn-light" t-on-click="() => this.setZoom(-0.1)"
+                        title="Zoom out">
+                    <i class="fa fa-search-minus"/>
+                </button>
+                <button class="btn btn-sm btn-light" t-on-click="() => this.resetZoom()">
+                    <t t-esc="Math.round(state.zoom * 100)"/>%
+                </button>
+                <button class="btn btn-sm btn-light" t-on-click="() => this.setZoom(0.1)"
+                        title="Zoom in">
+                    <i class="fa fa-search-plus"/>
+                </button>
+                <span class="text-muted small ms-2" t-if="state.pages.length">
+                    <t t-esc="state.pages.length"/> page(s)
+                </span>
+            </div>
+            <div class="o_dosign_canvas_scroll" t-ref="root">
+                <t t-if="state.loading">
+                    <div class="text-center text-muted py-5">
+                        <i class="fa fa-spinner fa-spin fa-2x"/>
+                        <p class="mt-2">Loading document…</p>
+                    </div>
+                </t>
+                <div t-foreach="state.pages" t-as="pg" t-key="pg.number"
+                     class="o_dosign_page"
+                     t-attf-style="width: {{ pg.w ? pg.w + 'px' : 'auto' }};"
+                     t-on-dragover="onDragOver"
+                     t-on-drop="(ev) => this.onDrop(ev, pg.number)">
+                    <canvas t-att-data-page="pg.number" class="o_dosign_pdf_page"/>
+                    <t t-foreach="itemsForPage(pg.number)" t-as="item" t-key="item.id">
+                        <DosignFieldChip
+                            item="item"
+                            pageW="pg.w"
+                            pageH="pg.h"
+                            color="colorOf(item)"
+                            label="labelOf(item)"
+                            onUpdate="(vals) => this.props.onUpdateItem(item.id, vals)"
+                            onRemove="() => this.props.onRemoveItem(item.id)"/>
+                    </t>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

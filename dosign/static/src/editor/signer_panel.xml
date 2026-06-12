@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="dosign.SignerPanel">
+        <div class="o_dosign_signers">
+            <div class="o_dosign_panel_title d-flex justify-content-between align-items-center">
+                <span>Signers</span>
+                <button class="btn btn-sm btn-link p-0" t-on-click="() => this.props.onAdd()"
+                        title="Add signer">
+                    <i class="fa fa-plus-circle"/>
+                </button>
+            </div>
+            <t t-if="!props.signers.length">
+                <p class="text-muted small px-2 mb-2">No signers yet.</p>
+            </t>
+            <div t-foreach="props.signers" t-as="signer" t-key="signer.id"
+                 class="o_dosign_signer_card"
+                 t-att-class="{ 'o_active': signer.id === props.activeSignerId }"
+                 t-on-click="() => this.props.onSelect(signer.id)">
+                <div class="d-flex align-items-center mb-1">
+                    <span class="o_dosign_color_dot"
+                          t-attf-style="background-color: {{ color(signer) }};"/>
+                    <span class="o_dosign_signer_count badge text-bg-light ms-auto">
+                        <t t-esc="fieldCount(signer)"/> fields
+                    </span>
+                    <button class="btn btn-sm btn-link text-danger p-0 ms-2"
+                            t-on-click.stop="() => this.props.onRemove(signer.id)"
+                            title="Remove signer">
+                        <i class="fa fa-trash-o"/>
+                    </button>
+                </div>
+                <input type="text" class="form-control form-control-sm mb-1"
+                       placeholder="Name" t-att-value="signer.name"
+                       t-on-click.stop=""
+                       t-on-change="(ev) => this.onNameInput(ev, signer)"/>
+                <input type="email" class="form-control form-control-sm"
+                       placeholder="Email" t-att-value="signer.email"
+                       t-on-click.stop=""
+                       t-on-change="(ev) => this.onEmailInput(ev, signer)"/>
+            </div>
+        </div>
+    </t>
+
+</templates>

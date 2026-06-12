@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="dosign.Editor">
+        <div class="o_dosign_editor">
+            <t t-if="!state.loaded">
+                <div class="text-center text-muted py-5">
+                    <i class="fa fa-spinner fa-spin fa-2x"/>
+                </div>
+            </t>
+            <t t-else="">
+                <!-- Header -->
+                <div class="o_dosign_editor_header">
+                    <button class="btn btn-link o_dosign_back" t-on-click="() => this.backToList()">
+                        <i class="fa fa-arrow-left"/>
+                    </button>
+                    <input type="text" class="o_dosign_doc_name form-control"
+                           t-att-value="state.name" t-att-readonly="readonly"
+                           t-on-change="onNameChange"/>
+                    <span class="badge text-bg-secondary ms-2 text-uppercase">
+                        <t t-esc="state.stateValue"/>
+                    </span>
+                    <div class="ms-auto d-flex gap-2">
+                        <button class="btn btn-secondary" t-if="state.stateValue === 'draft'"
+                                t-on-click="() => this.signNow()">
+                            Sign Now
+                        </button>
+                        <button class="btn btn-primary" t-if="state.stateValue === 'draft'"
+                                t-on-click="() => this.send()">
+                            <i class="fa fa-paper-plane me-1"/> Send
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="o_dosign_editor_body">
+                    <div class="o_dosign_sidebar">
+                        <DosignSignerPanel
+                            signers="state.signers"
+                            items="state.items"
+                            activeSignerId="state.activeSignerId"
+                            onSelect="(id) => this.selectSigner(id)"
+                            onAdd="() => this.addSigner()"
+                            onUpdate="(id, vals) => this.updateSigner(id, vals)"
+                            onRemove="(id) => this.removeSigner(id)"/>
+                        <DosignFieldPalette
+                            fieldTypes="state.fieldTypes"
+                            activeSigner="activeSigner"/>
+                    </div>
+                    <DosignPdfCanvas
+                        pdfUrl="pdfUrl"
+                        items="state.items"
+                        fieldTypes="state.fieldTypes"
+                        signers="state.signers"
+                        activeSignerId="state.activeSignerId"
+                        onAddItem="(ft, page, x, y) => this.addItem(ft, page, x, y)"
+                        onUpdateItem="(id, vals) => this.updateItem(id, vals)"
+                        onRemoveItem="(id) => this.removeItem(id)"/>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

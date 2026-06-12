@@ -11,7 +11,8 @@ class DosignDocument(models.Model):
     _order = 'create_date desc'
 
     name = fields.Char(
-        string='Name', required=True, tracking=True, default=_('New Document'))
+        string='Name', required=True, tracking=True,
+        default=lambda self: _('New Document'))
     reference = fields.Char(
         string='Reference', readonly=True, copy=False, index=True)
 
@@ -49,7 +50,7 @@ class DosignDocument(models.Model):
     signed_count = fields.Integer(
         string='Signed', compute='_compute_progress', store=True)
     progress_label = fields.Char(
-        string='Progress', compute='_compute_progress')
+        string='Progress', compute='_compute_progress', store=True)
 
     sha256_original = fields.Char(string='Original SHA-256', readonly=True, copy=False)
     sha256_final = fields.Char(string='Final SHA-256', readonly=True, copy=False)
@@ -83,6 +84,41 @@ class DosignDocument(models.Model):
         for doc in documents:
             doc._log_event('created')
         return documents
+
+    # --- Editor (Phase 2) ----------------------------------------------
+
+    def action_open_editor(self):
+        """Open the OWL editor client action on this document."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'dosign.editor',
+            'name': self.name or _('Editor'),
+            'params': {'document_id': self.id},
+        }
+
+    @api.model
+    def create_from_template(self, template_id):
+        """Create a draft document from a template, copying its field layout.
+
+        Roles stay on the copied items so the editor can map each one to a real
+        signer. Returns the new document id for the client action to open.
+        """
+        template = self.env['dosign.template'].browse(template_id).exists()
+        if not template:
+            raise UserError(_('Template not found.'))
+        document = self.create({
+            'name': template.name,
+            'template_id': template.id,
+            'attachment_id': template.attachment_id.id,
+        })
+        for item in template.item_ids:
+            item.copy({
+                'template_id': False,
+                'document_id': document.id,
+                'signer_id': False,
+            })
+        return document.id
 
     # --- State machine --------------------------------------------------
 

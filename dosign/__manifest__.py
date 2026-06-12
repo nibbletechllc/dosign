@@ -33,6 +33,11 @@ field-type catalog and menus.
         'views/dosign_tag_views.xml',
         'views/dosign_menus.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'dosign/static/src/**/*',
+        ],
+    },
     'installable': True,
     'application': True,
 }

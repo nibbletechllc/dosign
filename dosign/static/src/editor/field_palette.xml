@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="dosign.FieldPalette">
+        <div class="o_dosign_palette">
+            <div class="o_dosign_panel_title">Fields</div>
+            <t t-if="!props.activeSigner">
+                <p class="text-muted small px-2">Add a signer to place fields.</p>
+            </t>
+            <t t-else="">
+                <div class="o_dosign_palette_grid">
+                    <div t-foreach="props.fieldTypes" t-as="ft" t-key="ft.id"
+                         class="o_dosign_palette_item"
+                         draggable="true"
+                         t-on-dragstart="(ev) => this.onDragStart(ev, ft)"
+                         t-attf-style="border-left-color: {{ accentColor }};">
+                        <i t-attf-class="fa {{ ft.icon or 'fa-square-o' }} me-2"/>
+                        <t t-esc="ft.name"/>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>
