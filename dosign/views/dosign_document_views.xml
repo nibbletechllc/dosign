@@ -174,7 +174,7 @@
                 <filter name="partial" string="Partially Signed" domain="[('state', '=', 'partial')]"/>
                 <filter name="signed" string="Signed" domain="[('state', '=', 'signed')]"/>
                 <filter name="expired" string="Expired" domain="[('state', '=', 'expired')]"/>
-                <group expand="0" string="Group By">
+                <group>
                     <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
                     <filter name="group_user" string="Sent by" context="{'group_by': 'user_id'}"/>
                     <filter name="group_template" string="Template" context="{'group_by': 'template_id'}"/>
