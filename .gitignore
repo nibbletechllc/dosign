@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Odoo
+*.pyc
+*.pyo
+.~lock.*#
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+
+# Secrets / runtime
+*.log
+odoo.conf
+*.p12
+*.pfx
+
+# Claude Code local settings
+.claude/settings.local.json

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="module_category_dosign" model="ir.module.category">
+            <field name="name">Dosign</field>
+            <field name="description">Electronic document signing</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="group_dosign_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="module_category_dosign"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_dosign_manager" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="category_id" ref="module_category_dosign"/>
+            <field name="implied_ids" eval="[(4, ref('group_dosign_user'))]"/>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <!-- Users only see documents they sent or are a signer of. -->
+        <record id="rule_dosign_document_user" model="ir.rule">
+            <field name="name">Dosign Document: own documents</field>
+            <field name="model_id" ref="model_dosign_document"/>
+            <field name="domain_force">
+                ['|', ('user_id', '=', user.id),
+                      ('signer_ids.email', '=', user.login)]
+            </field>
+            <field name="groups" eval="[(4, ref('group_dosign_user'))]"/>
+        </record>
+
+        <!-- Managers see everything within company rules. -->
+        <record id="rule_dosign_document_manager" model="ir.rule">
+            <field name="name">Dosign Document: all documents</field>
+            <field name="model_id" ref="model_dosign_document"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_dosign_manager'))]"/>
+        </record>
+
+        <!-- Multi-company isolation. -->
+        <record id="rule_dosign_document_company" model="ir.rule">
+            <field name="name">Dosign Document: multi-company</field>
+            <field name="model_id" ref="model_dosign_document"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False),
+                      ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+    </data>
+</odoo>

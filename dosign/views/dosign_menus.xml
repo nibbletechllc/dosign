@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_dosign_root"
+              name="Dosign"
+              web_icon="dosign,static/description/icon.png"
+              sequence="90"
+              groups="group_dosign_user"/>
+
+    <menuitem id="menu_dosign_documents"
+              name="Documents"
+              parent="menu_dosign_root"
+              action="action_dosign_document"
+              sequence="10"/>
+
+    <menuitem id="menu_dosign_templates"
+              name="Templates"
+              parent="menu_dosign_root"
+              action="action_dosign_template"
+              sequence="20"/>
+
+    <menuitem id="menu_dosign_config"
+              name="Configuration"
+              parent="menu_dosign_root"
+              sequence="90"
+              groups="group_dosign_manager"/>
+
+    <menuitem id="menu_dosign_certificates"
+              name="Certificates"
+              parent="menu_dosign_config"
+              action="action_dosign_certificate"
+              sequence="10"/>
+
+    <menuitem id="menu_dosign_tags"
+              name="Tags"
+              parent="menu_dosign_config"
+              action="action_dosign_tag"
+              sequence="20"/>
+</odoo>

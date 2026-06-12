@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dosign_template_list" model="ir.ui.view">
+        <field name="name">dosign.template.list</field>
+        <field name="model">dosign.template</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="item_count" string="Fields"/>
+                <field name="role_count" string="Signers"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dosign_template_form" model="ir.ui.view">
+        <field name="name">dosign.template.form</field>
+        <field name="model">dosign.template</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Template Name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="attachment_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="item_count"/>
+                            <field name="role_count"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Roles" name="roles">
+                            <field name="role_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="color" widget="color_picker"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Fields" name="fields">
+                            <field name="item_ids">
+                                <list>
+                                    <field name="field_type_id"/>
+                                    <field name="role_id"/>
+                                    <field name="page"/>
+                                    <field name="required"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_dosign_template" model="ir.actions.act_window">
+        <field name="name">Templates</field>
+        <field name="res_model">dosign.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

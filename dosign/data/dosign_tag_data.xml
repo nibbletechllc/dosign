@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="tag_contract" model="dosign.tag">
+            <field name="name">Contract</field>
+            <field name="color">4</field>
+        </record>
+        <record id="tag_nda" model="dosign.tag">
+            <field name="name">NDA</field>
+            <field name="color">2</field>
+        </record>
+        <record id="tag_invoice" model="dosign.tag">
+            <field name="name">Invoice</field>
+            <field name="color">3</field>
+        </record>
+        <record id="tag_hr" model="dosign.tag">
+            <field name="name">HR</field>
+            <field name="color">6</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="field_type_signature" model="dosign.field.type">
+            <field name="name">Signature</field>
+            <field name="technical_name">signature</field>
+            <field name="item_type">signature</field>
+            <field name="icon">fa-pencil</field>
+            <field name="default_width">0.25</field>
+            <field name="default_height">0.08</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="field_type_initials" model="dosign.field.type">
+            <field name="name">Initials</field>
+            <field name="technical_name">initials</field>
+            <field name="item_type">initials</field>
+            <field name="icon">fa-font</field>
+            <field name="default_width">0.10</field>
+            <field name="default_height">0.06</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="field_type_name" model="dosign.field.type">
+            <field name="name">Name</field>
+            <field name="technical_name">name</field>
+            <field name="item_type">auto_text</field>
+            <field name="auto_fill">name</field>
+            <field name="icon">fa-user</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <record id="field_type_email" model="dosign.field.type">
+            <field name="name">Email</field>
+            <field name="technical_name">email</field>
+            <field name="item_type">auto_text</field>
+            <field name="auto_fill">email</field>
+            <field name="icon">fa-envelope</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <record id="field_type_phone" model="dosign.field.type">
+            <field name="name">Phone</field>
+            <field name="technical_name">phone</field>
+            <field name="item_type">auto_text</field>
+            <field name="auto_fill">phone</field>
+            <field name="icon">fa-phone</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <record id="field_type_company" model="dosign.field.type">
+            <field name="name">Company</field>
+            <field name="technical_name">company</field>
+            <field name="item_type">auto_text</field>
+            <field name="auto_fill">company</field>
+            <field name="icon">fa-building</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <record id="field_type_text" model="dosign.field.type">
+            <field name="name">Text</field>
+            <field name="technical_name">text</field>
+            <field name="item_type">text</field>
+            <field name="icon">fa-i-cursor</field>
+            <field name="sequence">70</field>
+        </record>
+
+        <record id="field_type_multiline" model="dosign.field.type">
+            <field name="name">Multiline</field>
+            <field name="technical_name">multiline</field>
+            <field name="item_type">multiline</field>
+            <field name="icon">fa-align-left</field>
+            <field name="default_height">0.12</field>
+            <field name="sequence">80</field>
+        </record>
+
+        <record id="field_type_checkbox" model="dosign.field.type">
+            <field name="name">Checkbox</field>
+            <field name="technical_name">checkbox</field>
+            <field name="item_type">checkbox</field>
+            <field name="icon">fa-check-square-o</field>
+            <field name="default_width">0.04</field>
+            <field name="default_height">0.04</field>
+            <field name="sequence">90</field>
+        </record>
+
+        <record id="field_type_radio" model="dosign.field.type">
+            <field name="name">Radio</field>
+            <field name="technical_name">radio</field>
+            <field name="item_type">radio</field>
+            <field name="icon">fa-dot-circle-o</field>
+            <field name="sequence">100</field>
+        </record>
+
+        <record id="field_type_selection" model="dosign.field.type">
+            <field name="name">Selection</field>
+            <field name="technical_name">selection</field>
+            <field name="item_type">selection</field>
+            <field name="icon">fa-list</field>
+            <field name="sequence">110</field>
+        </record>
+
+        <record id="field_type_date" model="dosign.field.type">
+            <field name="name">Date</field>
+            <field name="technical_name">date</field>
+            <field name="item_type">date</field>
+            <field name="icon">fa-calendar</field>
+            <field name="sequence">120</field>
+        </record>
+    </data>
+</odoo>
