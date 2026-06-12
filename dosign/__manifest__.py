@@ -18,9 +18,9 @@ field-type catalog and menus.
     'website': 'https://nibbletec.com',
     'license': 'LGPL-3',
     'depends': ['base', 'mail', 'portal', 'web'],
-    'external_dependencies': {
-        'python': ['pypdf', 'reportlab', 'pyhanko', 'pyhanko_certvalidator', 'cryptography'],
-    },
+    # Python deps (pypdf, reportlab, pyhanko, pyhanko_certvalidator, cryptography)
+    # are declared per-phase when first imported (Phase 4 sealing). Declaring them
+    # now would block installation of the Phase 1 foundation, which imports none.
     'data': [
         'security/dosign_security.xml',
         'security/ir.model.access.csv',
