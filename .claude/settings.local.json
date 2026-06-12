@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(extract-text \"Dosign - Technical Design Document.docx\")",
-      "Bash(pandoc \"Dosign - Technical Design Document.docx\" -t markdown)",
-      "Bash(python3 \"/Users/jarvis/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin/5c772e5c-e9b1-4a91-9547-45ae47b2a8da/e64df7e9-f2da-4a2b-852e-e26c46f15f02/skills/docx/scripts/office/unpack.py\" \"Dosign - Technical Design Document.docx\" /tmp/dosign_unpacked/)"
-    ]
-  }
-}
