@@ -133,12 +133,31 @@
     overflow: hidden;
     box-sizing: border-box;
 
+    &.o_has_value { border-style: solid; }
+
     .o_dosign_chip_label {
         pointer-events: none;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         padding: 0 2px;
+        opacity: .85;
+    }
+    .o_dosign_chip_value {
+        pointer-events: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0 3px;
+        color: #1a1a1a;
+        width: 100%;
+        text-align: center;
+    }
+    .o_dosign_chip_img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        pointer-events: none;
     }
     .o_dosign_chip_del {
         position: absolute;

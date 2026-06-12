@@ -39,6 +39,8 @@
                             pageH="pg.h"
                             color="colorOf(item)"
                             label="labelOf(item)"
+                            value="valueOf(item)"
+                            editable="props.editable !== false"
                             onUpdate="(vals) => this.props.onUpdateItem(item.id, vals)"
                             onRemove="() => this.props.onRemoveItem(item.id)"/>
                     </t>

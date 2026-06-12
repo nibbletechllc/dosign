@@ -21,6 +21,15 @@ export class DosignListController extends ListController {
         });
     }
 
+    /**
+     * Clicking a row opens the document in the editor/viewer instead of the
+     * form: a draft shows its placeholder fields, an edited document shows the
+     * captured values and signatures.
+     */
+    openRecord(record) {
+        this.openEditor(record.resId);
+    }
+
     onUploadPdf() {
         this.dialogService.add(DosignUploadModal, {
             onCreated: (documentId) => this.openEditor(documentId),

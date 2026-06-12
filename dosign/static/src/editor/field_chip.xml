@@ -3,16 +3,30 @@
 
     <t t-name="dosign.FieldChip">
         <div class="o_dosign_chip" t-att-style="style"
+             t-att-class="{ 'o_has_value': props.value, 'o_readonly': props.editable === false }"
              t-on-pointerdown="(ev) => this.onPointerDown(ev, 'move')">
-            <span class="o_dosign_chip_label">
-                <t t-esc="props.label"/>
-            </span>
-            <button class="o_dosign_chip_del" t-on-pointerdown.stop=""
-                    t-on-click.stop="() => this.props.onRemove()" title="Delete">
-                <i class="fa fa-times"/>
-            </button>
-            <span class="o_dosign_chip_resize"
-                  t-on-pointerdown="(ev) => this.onPointerDown(ev, 'resize')"/>
+            <t t-if="props.value and props.value.image">
+                <img class="o_dosign_chip_img"
+                     t-att-src="'data:image/png;base64,' + props.value.image"/>
+            </t>
+            <t t-elif="props.value and props.value.text">
+                <span class="o_dosign_chip_value">
+                    <t t-esc="props.value.text"/>
+                </span>
+            </t>
+            <t t-else="">
+                <span class="o_dosign_chip_label">
+                    <t t-esc="props.label"/>
+                </span>
+            </t>
+            <t t-if="props.editable !== false">
+                <button class="o_dosign_chip_del" t-on-pointerdown.stop=""
+                        t-on-click.stop="() => this.props.onRemove()" title="Delete">
+                    <i class="fa fa-times"/>
+                </button>
+                <span class="o_dosign_chip_resize"
+                      t-on-pointerdown="(ev) => this.onPointerDown(ev, 'resize')"/>
+            </t>
         </div>
     </t>
 

@@ -14,6 +14,7 @@ export class DosignPdfCanvas extends Component {
         fieldTypes: Array,
         signers: Array,
         activeSignerId: { type: [Number, { value: null }], optional: true },
+        editable: { type: Boolean, optional: true },
         onAddItem: Function,
         onUpdateItem: Function,
         onRemoveItem: Function,
@@ -90,6 +91,28 @@ export class DosignPdfCanvas extends Component {
         return ft ? ft.name : "Field";
     }
 
+    signerOf(item) {
+        const signerId = Array.isArray(item.signer_id) ? item.signer_id[0] : item.signer_id;
+        return this.props.signers.find((s) => s.id === signerId);
+    }
+
+    // Captured value to render, or null to fall back to the placeholder label.
+    valueOf(item) {
+        const ft = this.fieldTypeOf(item);
+        const type = ft ? ft.item_type : null;
+        const signer = this.signerOf(item);
+        if (type === "signature" && signer && signer.signature_image) {
+            return { image: signer.signature_image };
+        }
+        if (type === "initials" && signer && signer.initials_image) {
+            return { image: signer.initials_image };
+        }
+        if (item.value_text) {
+            return { text: item.value_text };
+        }
+        return null;
+    }
+
     colorOf(item) {
         const signerId = Array.isArray(item.signer_id) ? item.signer_id[0] : item.signer_id;
         const signer = this.props.signers.find((s) => s.id === signerId);
@@ -97,11 +120,17 @@ export class DosignPdfCanvas extends Component {
     }
 
     onDragOver(ev) {
+        if (this.props.editable === false) {
+            return;
+        }
         ev.preventDefault();
         ev.dataTransfer.dropEffect = "copy";
     }
 
     onDrop(ev, pageNumber) {
+        if (this.props.editable === false) {
+            return;
+        }
         ev.preventDefault();
         const ftId = parseInt(ev.dataTransfer.getData("application/dosign-field"), 10);
         if (!ftId) {
