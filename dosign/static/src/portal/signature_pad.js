@@ -103,6 +103,41 @@ export class SignaturePad extends Component {
         if (this.state.mode === "type") {
             this._renderTyped();
         }
-        this.props.onConfirm(this.canvasRef.el.toDataURL("image/png"));
+        this.props.onConfirm(this._exportTrimmed());
+    }
+
+    // Crop the canvas to the drawn content so the signature fills the field
+    // instead of floating tiny inside a mostly-empty image.
+    _exportTrimmed() {
+        const canvas = this.canvasRef.el;
+        const { width, height } = canvas;
+        const data = canvas.getContext("2d").getImageData(0, 0, width, height).data;
+        let minX = width, minY = height, maxX = 0, maxY = 0, found = false;
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                if (data[(y * width + x) * 4 + 3] > 12) {
+                    found = true;
+                    minX = Math.min(minX, x);
+                    maxX = Math.max(maxX, x);
+                    minY = Math.min(minY, y);
+                    maxY = Math.max(maxY, y);
+                }
+            }
+        }
+        if (!found) {
+            return canvas.toDataURL("image/png");
+        }
+        const pad = 8;
+        minX = Math.max(0, minX - pad);
+        minY = Math.max(0, minY - pad);
+        maxX = Math.min(width, maxX + pad);
+        maxY = Math.min(height, maxY + pad);
+        const w = maxX - minX;
+        const h = maxY - minY;
+        const out = document.createElement("canvas");
+        out.width = w;
+        out.height = h;
+        out.getContext("2d").drawImage(canvas, minX, minY, w, h, 0, 0, w, h);
+        return out.toDataURL("image/png");
     }
 }

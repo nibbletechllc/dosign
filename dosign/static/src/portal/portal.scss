@@ -40,12 +40,14 @@
         border: 1.5px dashed #714B67;
         background: rgba(113, 75, 103, .08);
         color: #714B67;
-        font-size: .75rem;
+        font-size: .8em; // relative to the field's scaled font-size
         border-radius: 3px;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
+        white-space: nowrap;
+        overflow: hidden;
     }
 
     .o_dosign_field_img {
@@ -54,13 +56,27 @@
         object-fit: contain;
     }
 
+    // On a thin signature line, let the signature fill the width and overflow
+    // upward (sitting on the line) instead of shrinking to the line height.
+    .o_dosign_field.o_signature {
+        overflow: visible;
+        align-items: flex-end;
+
+        .o_dosign_field_img {
+            width: 100%;
+            height: auto;
+            max-height: 420%;
+        }
+    }
+
     .o_dosign_field_input {
         width: 100%;
         height: 100%;
         border: 1px solid #1f6fb2;
         border-radius: 3px;
-        font-size: .8rem;
-        padding: 1px 4px;
+        font-size: inherit; // scales with the field height (set inline)
+        line-height: 1.1;
+        padding: 0 4px;
         background: rgba(255, 255, 255, .92);
         resize: none;
     }

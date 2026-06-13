@@ -35,10 +35,11 @@ export class DosignFieldChip extends Component {
         const filled = !!this.props.value;
         const bg = filled ? "#ffffff" : `${color}22`;
         const cursor = this.props.editable === false ? "default" : "move";
+        const fontPx = this.props.pageH ? Math.max(9, i.height * this.props.pageH * 0.55) : 11;
         return `left:${i.pos_x * 100}%;top:${i.pos_y * 100}%;` +
             `width:${i.width * 100}%;height:${i.height * 100}%;` +
             `border-color:${color};background-color:${bg};` +
-            `color:${color};cursor:${cursor};`;
+            `color:${color};cursor:${cursor};font-size:${fontPx}px;`;
     }
 
     onPointerDown(ev, mode) {

@@ -74,9 +74,16 @@ export class DosignSignPortal extends Component {
         return this.data.items.filter((i) => i.page === pageNumber);
     }
 
-    chipStyle(item) {
+    chipStyle(item, pg) {
+        // Scale the font to the field height so text/inputs fill the line.
+        const fontPx = pg && pg.h ? Math.max(11, item.height * pg.h * 0.72) : 13;
         return `left:${item.pos_x * 100}%;top:${item.pos_y * 100}%;` +
-            `width:${item.width * 100}%;height:${item.height * 100}%;`;
+            `width:${item.width * 100}%;height:${item.height * 100}%;` +
+            `font-size:${fontPx}px;`;
+    }
+
+    isSignature(item) {
+        return item.type === "signature" || item.type === "initials";
     }
 
     imageFor(item) {

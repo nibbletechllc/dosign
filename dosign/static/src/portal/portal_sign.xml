@@ -27,8 +27,8 @@
                          t-attf-style="width: {{ pg.w ? pg.w + 'px' : 'auto' }};">
                         <canvas t-att-data-page="pg.number"/>
                         <t t-foreach="itemsForPage(pg.number)" t-as="item" t-key="item.id">
-                            <div class="o_dosign_field" t-att-style="chipStyle(item)"
-                                 t-att-class="{ 'o_required': item.required }">
+                            <div class="o_dosign_field" t-att-style="chipStyle(item, pg)"
+                                 t-att-class="{ 'o_required': item.required, 'o_signature': isSignature(item) and imageFor(item) }">
                                 <!-- Signature / initials -->
                                 <t t-if="item.type === 'signature' or item.type === 'initials'">
                                     <t t-if="imageFor(item)">
