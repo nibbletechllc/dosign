@@ -27,15 +27,22 @@ field-type catalog and menus.
         'data/dosign_sequence.xml',
         'data/dosign_field_type_data.xml',
         'data/dosign_tag_data.xml',
+        'data/dosign_mail_templates.xml',
         'views/dosign_document_views.xml',
         'views/dosign_template_views.xml',
         'views/dosign_certificate_views.xml',
         'views/dosign_tag_views.xml',
+        'views/dosign_portal_templates.xml',
         'views/dosign_menus.xml',
     ],
     'assets': {
         'web.assets_backend': [
-            'dosign/static/src/**/*',
+            'dosign/static/src/editor/**/*',
+            'dosign/static/src/upload/**/*',
+            'dosign/static/src/views/**/*',
+        ],
+        'web.assets_frontend': [
+            'dosign/static/src/portal/**/*',
         ],
     },
     'installable': True,

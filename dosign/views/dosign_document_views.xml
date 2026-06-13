@@ -106,6 +106,7 @@
                         <group>
                             <field name="user_id"/>
                             <field name="expiry_date"/>
+                            <field name="signing_mode"/>
                             <field name="progress_label"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>

@@ -44,6 +44,14 @@ class DosignDocument(models.Model):
         'res.users', string='Sent by', default=lambda self: self.env.user,
         tracking=True)
     expiry_date = fields.Date(string='Expiry Date', tracking=True)
+    signing_mode = fields.Selection([
+        ('parallel', 'Parallel'),
+        ('sequential', 'Sequential'),
+    ], string='Signing Order', default='parallel', required=True,
+        help='Parallel: all signers are notified at once. '
+             'Sequential: each signer is notified after the previous one signs.')
+    message = fields.Text(
+        string='Message', help='Optional personal message included in the request email.')
 
     signer_count = fields.Integer(
         string='Signers', compute='_compute_progress', store=True)
@@ -123,23 +131,37 @@ class DosignDocument(models.Model):
     # --- State machine --------------------------------------------------
 
     def action_send(self):
-        """Validate, generate tokens and move the document To Sign.
+        """Validate, generate tokens, move To Sign and email the signers.
 
-        Email delivery is wired in Phase 3; here we cover validation, token
-        generation, the state transition and the audit log.
+        In sequential mode only the first pending rank is emailed; later ranks
+        are notified as earlier signers complete (see _process_signature).
         """
         for doc in self:
             doc._validate_for_send()
             for signer in doc.signer_ids:
                 signer._ensure_token()
+            if not doc.expiry_date:
+                doc.expiry_date = fields.Date.add(fields.Date.today(), days=30)
             doc.state = 'sent'
-            doc._log_event('sent')
+            doc._send_request_emails(doc._current_recipients())
         return True
 
     def action_sign_now(self):
-        """Placeholder for the backend Sign Now flow (Phase 3)."""
+        """Send (if needed) and open the public signing portal for the current user."""
         self.ensure_one()
-        raise UserError(_('Sign Now will be available once the editor ships (Phase 3).'))
+        if self.state == 'draft':
+            self.action_send()
+        email = (self.env.user.email or '').lower()
+        signer = self.signer_ids.filtered(
+            lambda s: s.email and s.email.lower() == email)[:1]
+        if not signer:
+            raise UserError(_('You are not listed as a signer on this document.'))
+        signer._ensure_token()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': signer._portal_sign_path(),
+            'target': 'new',
+        }
 
     def action_resend(self):
         for doc in self:
@@ -147,9 +169,12 @@ class DosignDocument(models.Model):
                 raise UserError(_('Only sent, partially signed or expired documents can be resent.'))
             if doc.state == 'expired':
                 doc.state = 'sent'
+                if not doc.expiry_date or doc.expiry_date < fields.Date.today():
+                    doc.expiry_date = fields.Date.add(fields.Date.today(), days=30)
             for signer in doc.signer_ids.filtered(lambda s: s.state in ('pending', 'viewed')):
                 signer._regenerate_token()
             doc._log_event('resent')
+            doc._send_request_emails(doc._current_recipients())
         return True
 
     def action_cancel(self):
@@ -183,15 +208,81 @@ class DosignDocument(models.Model):
         if self.item_ids.filtered(lambda i: not i.signer_id):
             raise UserError(_('Every field must be assigned to a signer.'))
 
-    def _process_signature(self, signer, values):
-        """Store a signer's submitted values and advance state (Phase 3)."""
+    # --- Signing (Phase 3) ---------------------------------------------
+
+    def _current_recipients(self):
+        """Signers who should receive a request email right now."""
         self.ensure_one()
-        raise NotImplementedError('Signature processing lands in Phase 3.')
+        pending = self.signer_ids.filtered(lambda s: s.state in ('pending', 'viewed'))
+        if self.signing_mode == 'sequential' and pending:
+            current_rank = min(pending.mapped('sequence'))
+            return pending.filtered(lambda s: s.sequence == current_rank)
+        return pending
+
+    def _send_request_emails(self, signers):
+        template = self.env.ref(
+            'dosign.mail_template_dosign_request', raise_if_not_found=False)
+        for signer in signers:
+            if template:
+                template.send_mail(signer.id, force_send=False)
+            self._log_event('sent', signer=signer)
+
+    def _process_signature(self, signer, item_values, signature=None,
+                           initials=None, metadata=None):
+        """Store a signer's submitted values + signature and advance state."""
+        self.ensure_one()
+        metadata = metadata or {}
+        for item in signer.item_ids:
+            if item.id in item_values:
+                item.value_text = item_values[item.id]
+        signer.write({
+            'state': 'signed',
+            'signed_on': fields.Datetime.now(),
+            'signature_image': signature or False,
+            'initials_image': initials or False,
+            'ip_address': metadata.get('ip'),
+            'user_agent': metadata.get('user_agent'),
+        })
+        payload = repr(sorted(item_values.items()))
+        self._log_event('signed', signer=signer,
+                        payload_hash=self._compute_sha256(payload.encode()))
+        if all(s.state == 'signed' for s in self.signer_ids):
+            self._mark_signed()
+        else:
+            self.state = 'partial'
+            if self.signing_mode == 'sequential':
+                self._send_request_emails(self._current_recipients())
+        return True
+
+    def _mark_signed(self):
+        self.ensure_one()
+        self.state = 'signed'
+        self._log_event('signed')
+        self._finalize()
+        template = self.env.ref(
+            'dosign.mail_template_dosign_completed', raise_if_not_found=False)
+        if template:
+            template.send_mail(self.id, force_send=False)
+
+    def action_decline(self, signer, reason=None):
+        self.ensure_one()
+        signer.write({'state': 'declined', 'decline_reason': reason})
+        self._log_event('declined', signer=signer)
+        template = self.env.ref(
+            'dosign.mail_template_dosign_declined', raise_if_not_found=False)
+        if template:
+            template.with_context(decline_reason=reason).send_mail(
+                self.id, force_send=False)
+        return True
 
     def _finalize(self):
-        """Flatten + PAdES-seal the completed document (Phase 4)."""
+        """Flatten + PAdES-seal the completed document (Phase 4).
+
+        Phase 3 reaches the 'signed' state; the cryptographic seal and the
+        flattened/sealed PDF attachment are produced in Phase 4.
+        """
         self.ensure_one()
-        raise NotImplementedError('Finalization lands in Phase 4.')
+        return False
 
     # --- Helpers --------------------------------------------------------
 

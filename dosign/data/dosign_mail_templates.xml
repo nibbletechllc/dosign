@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ===== Signature request (per signer) ===== -->
+        <record id="mail_template_dosign_request" model="mail.template">
+            <field name="name">Dosign: Signature Request</field>
+            <field name="model_id" ref="model_dosign_signer"/>
+            <field name="subject">Signature requested: {{ object.document_id.name }}</field>
+            <field name="email_from">{{ (object.document_id.user_id.email_formatted or user.email_formatted) }}</field>
+            <field name="email_to">{{ object.email }}</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html" type="html">
+                <div style="margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a;">
+                    <p>Hello <t t-out="object.name or ''"/>,</p>
+                    <p>
+                        <t t-out="object.document_id.user_id.name or 'A colleague'"/>
+                        has requested your signature on
+                        <strong t-out="object.document_id.name or ''"/>.
+                    </p>
+                    <p t-if="object.document_id.message">
+                        <em t-out="object.document_id.message"/>
+                    </p>
+                    <p style="margin:24px 0;">
+                        <a t-att-href="object._portal_sign_url()"
+                           style="background:#714B67;color:#fff;padding:10px 22px;border-radius:6px;text-decoration:none;display:inline-block;">
+                            Review &amp; Sign
+                        </a>
+                    </p>
+                    <p t-if="object.document_id.expiry_date" style="color:#888;font-size:13px;">
+                        Please sign before
+                        <t t-out="object.document_id.expiry_date" t-options='{"widget": "date"}'/>.
+                    </p>
+                </div>
+            </field>
+        </record>
+
+        <!-- ===== Completion (requester + all signers) ===== -->
+        <record id="mail_template_dosign_completed" model="mail.template">
+            <field name="name">Dosign: Document Completed</field>
+            <field name="model_id" ref="model_dosign_document"/>
+            <field name="subject">Signed: {{ object.name }}</field>
+            <field name="email_from">{{ (object.user_id.email_formatted or user.email_formatted) }}</field>
+            <field name="email_to">{{ ','.join([e for e in (object.signer_ids.mapped('email') + [object.user_id.email]) if e]) }}</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html" type="html">
+                <div style="margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a;">
+                    <p>
+                        <strong t-out="object.name or ''"/> has been signed by all parties.
+                    </p>
+                    <p style="color:#888;font-size:13px;">
+                        Reference: <t t-out="object.reference or ''"/>
+                    </p>
+                </div>
+            </field>
+        </record>
+
+        <!-- ===== Declined (to requester) ===== -->
+        <record id="mail_template_dosign_declined" model="mail.template">
+            <field name="name">Dosign: Document Declined</field>
+            <field name="model_id" ref="model_dosign_document"/>
+            <field name="subject">Declined: {{ object.name }}</field>
+            <field name="email_from">{{ user.email_formatted }}</field>
+            <field name="email_to">{{ object.user_id.email }}</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html" type="html">
+                <div style="margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a;">
+                    <t t-set="declined" t-value="object.signer_ids.filtered(lambda s: s.state == 'declined')[:1]"/>
+                    <p>
+                        <strong t-out="declined.name or 'A signer'"/> declined to sign
+                        <strong t-out="object.name or ''"/>.
+                    </p>
+                    <p t-if="declined.decline_reason">
+                        Reason: <em t-out="declined.decline_reason"/>
+                    </p>
+                </div>
+            </field>
+        </record>
+
+    </data>
+</odoo>
