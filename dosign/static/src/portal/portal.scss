@@ -98,7 +98,8 @@
     .o_dosign_pad {
         background: #fff;
         border-radius: 8px;
-        width: min(520px, 92vw);
+        width: 92vw;
+        max-width: 520px;
         box-shadow: 0 8px 30px rgba(0, 0, 0, .3);
     }
     .o_dosign_pad_head {
