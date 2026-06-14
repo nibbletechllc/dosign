@@ -77,5 +77,74 @@
             </field>
         </record>
 
+        <!-- ===== Reminder (per signer) ===== -->
+        <record id="mail_template_dosign_reminder" model="mail.template">
+            <field name="name">Dosign: Signature Reminder</field>
+            <field name="model_id" ref="model_dosign_signer"/>
+            <field name="subject">Reminder: please sign {{ object.document_id.name }}</field>
+            <field name="email_from">{{ (object.document_id.user_id.email_formatted or user.email_formatted) }}</field>
+            <field name="email_to">{{ object.email }}</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html" type="html">
+                <div style="margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a;">
+                    <p>Hello <t t-out="object.name or ''"/>,</p>
+                    <p>
+                        This is a friendly reminder to sign
+                        <strong t-out="object.document_id.name or ''"/>.
+                    </p>
+                    <p style="margin:24px 0;">
+                        <a t-att-href="object._portal_sign_url()"
+                           style="background:#714B67;color:#fff;padding:10px 22px;border-radius:6px;text-decoration:none;display:inline-block;">
+                            Review &amp; Sign
+                        </a>
+                    </p>
+                    <p t-if="object.document_id.expiry_date" style="color:#888;font-size:13px;">
+                        Expires on
+                        <t t-out="object.document_id.expiry_date" t-options='{"widget": "date"}'/>.
+                    </p>
+                </div>
+            </field>
+        </record>
+
+        <!-- ===== Expired (to requester) ===== -->
+        <record id="mail_template_dosign_expired" model="mail.template">
+            <field name="name">Dosign: Document Expired</field>
+            <field name="model_id" ref="model_dosign_document"/>
+            <field name="subject">Expired: {{ object.name }}</field>
+            <field name="email_from">{{ user.email_formatted }}</field>
+            <field name="email_to">{{ object.user_id.email }}</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html" type="html">
+                <div style="margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a;">
+                    <p>
+                        <strong t-out="object.name or ''"/> expired before all signatures
+                        were collected.
+                    </p>
+                    <p>You can resend it ("Send again") to restart the signing process.</p>
+                </div>
+            </field>
+        </record>
+
+        <!-- ===== Certificate alert (to managers) ===== -->
+        <record id="mail_template_dosign_cert_alert" model="mail.template">
+            <field name="name">Dosign: Certificate Alert</field>
+            <field name="model_id" ref="model_dosign_certificate"/>
+            <field name="subject">Dosign certificate {{ object.state == 'expired' and 'expired' or 'expiring soon' }}: {{ object.name }}</field>
+            <field name="email_from">{{ user.email_formatted }}</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html" type="html">
+                <div style="margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a;">
+                    <p>
+                        The signing certificate <strong t-out="object.name or ''"/> is
+                        <t t-out="object.state == 'expired' and 'expired' or 'expiring soon'"/>.
+                    </p>
+                    <p t-if="object.valid_to" style="color:#888;font-size:13px;">
+                        Valid until <t t-out="object.valid_to" t-options='{"widget": "date"}'/>.
+                        Upload a replacement under Dosign &gt; Configuration &gt; Certificates.
+                    </p>
+                </div>
+            </field>
+        </record>
+
     </data>
 </odoo>

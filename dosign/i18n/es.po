@@ -1,0 +1,129 @@
+# Translation of Dosign (es).
+msgid ""
+msgstr ""
+"Project-Id-Version: dosign 19.0.1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Documents"
+msgstr "Documentos"
+
+msgid "Templates"
+msgstr "Plantillas"
+
+msgid "Reports"
+msgstr "Informes"
+
+msgid "Analysis"
+msgstr "Análisis"
+
+msgid "Configuration"
+msgstr "Configuración"
+
+msgid "Certificates"
+msgstr "Certificados"
+
+msgid "Tags"
+msgstr "Etiquetas"
+
+msgid "Settings"
+msgstr "Ajustes"
+
+msgid "Signers"
+msgstr "Firmantes"
+
+msgid "Roles"
+msgstr "Roles"
+
+msgid "Fields"
+msgstr "Campos"
+
+msgid "Signed"
+msgstr "Firmado"
+
+msgid "Expired"
+msgstr "Expirado"
+
+msgid "Cancelled"
+msgstr "Cancelado"
+
+msgid "Draft"
+msgstr "Borrador"
+
+msgid "To Sign"
+msgstr "Por firmar"
+
+msgid "Partially Signed"
+msgstr "Parcialmente firmado"
+
+msgid "In Progress"
+msgstr "En progreso"
+
+msgid "Send"
+msgstr "Enviar"
+
+msgid "Sign Now"
+msgstr "Firmar ahora"
+
+msgid "Sign now"
+msgstr "Firmar ahora"
+
+msgid "Share"
+msgstr "Compartir"
+
+msgid "Resend"
+msgstr "Reenviar"
+
+msgid "Send again"
+msgstr "Enviar de nuevo"
+
+msgid "Continue editing"
+msgstr "Seguir editando"
+
+msgid "Save as Template"
+msgstr "Guardar como plantilla"
+
+msgid "Open editor"
+msgstr "Abrir editor"
+
+msgid "Open Editor"
+msgstr "Abrir editor"
+
+msgid "Duplicate"
+msgstr "Duplicar"
+
+msgid "Use"
+msgstr "Usar"
+
+msgid "Status"
+msgstr "Estado"
+
+msgid "Name"
+msgstr "Nombre"
+
+msgid "Sent by"
+msgstr "Enviado por"
+
+msgid "Expiry Date"
+msgstr "Fecha de expiración"
+
+msgid "Message"
+msgstr "Mensaje"
+
+msgid "Signing Order"
+msgstr "Orden de firma"
+
+msgid "Signature"
+msgstr "Firma"
+
+msgid "Initials"
+msgstr "Iniciales"
+
+msgid "Date"
+msgstr "Fecha"

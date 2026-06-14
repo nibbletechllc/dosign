@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dosign_document_pivot" model="ir.ui.view">
+        <field name="name">dosign.document.pivot</field>
+        <field name="model">dosign.document</field>
+        <field name="arch" type="xml">
+            <pivot string="Documents Analysis" sample="1">
+                <field name="user_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="completion_hours" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_dosign_document_graph" model="ir.ui.view">
+        <field name="name">dosign.document.graph</field>
+        <field name="model">dosign.document</field>
+        <field name="arch" type="xml">
+            <graph string="Documents Analysis" sample="1" type="bar">
+                <field name="state"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_dosign_report" model="ir.actions.act_window">
+        <field name="name">Analysis</field>
+        <field name="res_model">dosign.document</field>
+        <field name="view_mode">graph,pivot</field>
+        <field name="search_view_id" ref="view_dosign_document_search"/>
+    </record>
+</odoo>
