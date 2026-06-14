@@ -18,13 +18,19 @@ export class DosignListController extends ListController {
     }
 
     async loadCounts() {
-        const groups = await this.orm.readGroup(
-            "dosign.document", [], ["state"], ["state"]);
-        const data = {};
-        for (const group of groups) {
-            data[group.state] = group.state_count ?? group.__count ?? 0;
+        try {
+            const groups = await this.orm.formattedReadGroup(
+                "dosign.document", [], ["state"], ["__count"]);
+            const data = {};
+            for (const group of groups) {
+                const state = Array.isArray(group.state) ? group.state[0] : group.state;
+                data[state] = group.__count ?? 0;
+            }
+            this.counts.data = data;
+        } catch {
+            // Never let the status counters block the list from rendering.
+            this.counts.data = {};
         }
-        this.counts.data = data;
     }
 
     openEditor(documentId) {
