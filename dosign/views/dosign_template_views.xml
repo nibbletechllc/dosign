@@ -79,6 +79,13 @@
                     records_draggable="false" group_create="false">
                 <field name="attachment_id"/>
                 <templates>
+                    <t t-name="menu">
+                        <a role="menuitem" type="edit" class="dropdown-item">Edit</a>
+                        <a role="menuitem" type="object" name="action_duplicate"
+                           class="dropdown-item">Duplicate</a>
+                        <div role="separator" class="dropdown-divider"/>
+                        <a role="menuitem" type="delete" class="dropdown-item text-danger">Delete</a>
+                    </t>
                     <t t-name="card">
                         <div class="o_dosign_tpl_row oe_kanban_global_click">
                             <field name="is_favorite" widget="boolean_favorite" nolabel="1"
