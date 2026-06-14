@@ -17,6 +17,19 @@ class DosignTemplate(models.Model):
     item_count = fields.Integer(string='Fields', compute='_compute_counts')
     role_count = fields.Integer(string='Signers', compute='_compute_counts')
 
+    document_ids = fields.One2many('dosign.document', 'template_id', string='Documents')
+    doc_in_progress_count = fields.Integer(
+        string='In Progress', compute='_compute_doc_counts')
+    doc_signed_count = fields.Integer(
+        string='Signed', compute='_compute_doc_counts')
+
+    favorite_user_ids = fields.Many2many(
+        'res.users', 'dosign_template_favorite_rel', 'template_id', 'user_id',
+        string='Favorited By', default=lambda self: self.env.user)
+    is_favorite = fields.Boolean(
+        string='Favorite', compute='_compute_is_favorite',
+        inverse='_inverse_is_favorite', search='_search_is_favorite')
+
     company_id = fields.Many2one(
         'res.company', string='Company',
         default=lambda self: self.env.company)
@@ -27,6 +40,37 @@ class DosignTemplate(models.Model):
         for template in self:
             template.item_count = len(template.item_ids)
             template.role_count = len(template.role_ids)
+
+    @api.depends('document_ids.state')
+    def _compute_doc_counts(self):
+        for template in self:
+            docs = template.document_ids
+            template.doc_in_progress_count = len(
+                docs.filtered(lambda d: d.state in ('draft', 'sent', 'partial')))
+            template.doc_signed_count = len(
+                docs.filtered(lambda d: d.state == 'signed'))
+
+    @api.depends_context('uid')
+    @api.depends('favorite_user_ids')
+    def _compute_is_favorite(self):
+        uid = self.env.uid
+        for template in self:
+            template.is_favorite = uid in template.favorite_user_ids.ids
+
+    def _inverse_is_favorite(self):
+        user = self.env.user
+        for template in self:
+            if template.is_favorite:
+                template.favorite_user_ids = [(4, user.id)]
+            else:
+                template.favorite_user_ids = [(3, user.id)]
+
+    def _search_is_favorite(self, operator, value):
+        if operator not in ('=', '!='):
+            raise ValueError(_('Unsupported operator for is_favorite search.'))
+        favorited = (operator == '=') == bool(value)
+        key = 'in' if favorited else 'not in'
+        return [('favorite_user_ids', key, [self.env.uid])]
 
     def action_open_editor(self):
         """Open the OWL editor in template mode (roles instead of signers)."""

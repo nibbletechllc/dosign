@@ -1,0 +1,80 @@
+.o_dosign_tpl_kanban {
+    // Full-width rows instead of the default kanban grid.
+    .o_kanban_renderer {
+        display: flex !important;
+        flex-direction: column;
+        gap: 0;
+        background: #fff;
+    }
+
+    .o_kanban_record {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        border: 0 !important;
+        border-bottom: 1px solid #ececec !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+
+        &:hover { background: #faf9fb; }
+    }
+
+    .o_dosign_tpl_row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: .85rem 1.25rem;
+        width: 100%;
+    }
+
+    .o_dosign_tpl_star {
+        flex: 0 0 auto;
+        font-size: 1.05rem;
+    }
+
+    .o_dosign_tpl_main {
+        flex: 1 1 auto;
+        min-width: 0;
+
+        .o_dosign_tpl_name {
+            font-weight: 600;
+            color: #111;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .o_dosign_tpl_sub {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            color: #8a8a8a;
+            font-size: .85rem;
+            margin-top: .15rem;
+        }
+        .o_dosign_tpl_date { font-style: italic; }
+    }
+
+    .o_dosign_tpl_stat {
+        flex: 0 0 96px;
+        text-align: center;
+
+        .o_dosign_tpl_num {
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.1;
+        }
+        .o_dosign_tpl_lbl {
+            font-size: .8rem;
+            color: #8a8a8a;
+        }
+    }
+
+    .o_dosign_tpl_actions {
+        flex: 0 0 auto;
+        display: flex;
+        gap: .4rem;
+        min-width: 230px;
+        justify-content: flex-end;
+    }
+}

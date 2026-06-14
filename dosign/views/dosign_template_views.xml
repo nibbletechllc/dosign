@@ -70,9 +70,79 @@
         </field>
     </record>
 
+    <!-- ============ Kanban (rows, Sign-style) ============ -->
+    <record id="view_dosign_template_kanban" model="ir.ui.view">
+        <field name="name">dosign.template.kanban</field>
+        <field name="model">dosign.template</field>
+        <field name="arch" type="xml">
+            <kanban js_class="dosign_template_kanban" class="o_dosign_tpl_kanban"
+                    records_draggable="false" group_create="false">
+                <field name="attachment_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_dosign_tpl_row">
+                            <field name="is_favorite" widget="boolean_favorite" nolabel="1"
+                                   class="o_dosign_tpl_star"/>
+                            <div class="o_dosign_tpl_main">
+                                <div class="o_dosign_tpl_name">
+                                    <field name="name"/>
+                                </div>
+                                <div class="o_dosign_tpl_sub">
+                                    <field name="create_uid" widget="many2one_avatar_user"/>
+                                    <span class="o_dosign_tpl_date">
+                                        <field name="create_date" widget="date"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="o_dosign_tpl_stat">
+                                <div class="o_dosign_tpl_num text-info">
+                                    <field name="doc_in_progress_count"/>
+                                </div>
+                                <div class="o_dosign_tpl_lbl">In Progress</div>
+                            </div>
+                            <div class="o_dosign_tpl_stat">
+                                <div class="o_dosign_tpl_num">
+                                    <field name="doc_signed_count"/>
+                                </div>
+                                <div class="o_dosign_tpl_lbl">Signed</div>
+                            </div>
+                            <div class="o_dosign_tpl_actions">
+                                <button type="object" name="action_use" class="btn btn-primary btn-sm">
+                                    Send
+                                </button>
+                                <button type="object" name="action_use" class="btn btn-secondary btn-sm">
+                                    Sign Now
+                                </button>
+                                <button type="object" name="action_use" class="btn btn-light btn-sm"
+                                        t-if="record.doc_signed_count.raw_value">
+                                    Share
+                                </button>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ============ Search ============ -->
+    <record id="view_dosign_template_search" model="ir.ui.view">
+        <field name="name">dosign.template.search</field>
+        <field name="model">dosign.template</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <filter name="my_favorites" string="My Favorites"
+                        domain="[('is_favorite', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
     <record id="action_dosign_template" model="ir.actions.act_window">
         <field name="name">Templates</field>
         <field name="res_model">dosign.template</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_dosign_template_search"/>
+        <field name="context">{'search_default_my_favorites': 1}</field>
     </record>
 </odoo>
