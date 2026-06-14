@@ -7,6 +7,7 @@ import { _t } from "@web/core/l10n/translation";
 import { DosignPdfCanvas } from "@dosign/editor/pdf_canvas";
 import { DosignSignerPanel } from "@dosign/editor/signer_panel";
 import { DosignFieldPalette } from "@dosign/editor/field_palette";
+import { DosignSendDialog } from "@dosign/editor/send_dialog";
 
 const SIGNER_COLOR_COUNT = 8;
 const SAVE_DELAY = 600;
@@ -24,6 +25,7 @@ export class DosignEditor extends Component {
         this.orm = useService("orm");
         this.actionService = useService("action");
         this.notification = useService("notification");
+        this.dialog = useService("dialog");
         this.documentId = this.props.action.params.document_id;
         this._timers = {};
         this.state = useState({
@@ -182,14 +184,24 @@ export class DosignEditor extends Component {
 
     // --- Actions --------------------------------------------------------
 
-    async send() {
-        await this.orm.call("dosign.document", "action_send", [[this.documentId]]);
-        this.notification.add(_t("Document sent to signers."), { type: "success" });
-        this.backToList();
+    send() {
+        this.dialog.add(DosignSendDialog, {
+            signers: this.state.signers,
+            onConfirm: async (vals) => {
+                await this.orm.write("dosign.document", [this.documentId], vals);
+                await this.orm.call("dosign.document", "action_send", [[this.documentId]]);
+                this.notification.add(_t("Document sent to signers."), { type: "success" });
+                this.backToList();
+            },
+        });
     }
 
     async signNow() {
-        await this.orm.call("dosign.document", "action_sign_now", [[this.documentId]]);
+        const action = await this.orm.call(
+            "dosign.document", "action_sign_now", [[this.documentId]]);
+        if (action) {
+            this.actionService.doAction(action);
+        }
     }
 
     backToList() {

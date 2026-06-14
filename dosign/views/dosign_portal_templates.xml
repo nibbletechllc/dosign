@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_sign" name="Dosign Signing Portal">
+        <t t-call="web.frontend_layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="o_dosign_portal container-fluid py-3">
+                <div class="o_dosign_portal_header d-flex align-items-center mb-3">
+                    <span class="o_dosign_brand fw-bold me-3">Dosign</span>
+                    <span class="text-muted">
+                        <t t-esc="document_name"/>
+                    </span>
+                </div>
+
+                <t t-if="already_signed">
+                    <div class="alert alert-success" role="alert">
+                        You have already signed this document. Thank you.
+                    </div>
+                </t>
+                <t t-else="">
+                    <!-- OWL signing widget mounted via public_components -->
+                    <owl-component name="dosign.sign_portal" t-att-props="props_json"/>
+                </t>
+            </div>
+        </t>
+    </template>
+</odoo>

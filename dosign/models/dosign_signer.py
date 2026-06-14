@@ -33,6 +33,7 @@ class DosignSigner(models.Model):
     signature_image = fields.Binary(string='Signature', copy=False)
     initials_image = fields.Binary(string='Initials', copy=False)
     signed_on = fields.Datetime(string='Signed On', copy=False)
+    decline_reason = fields.Text(string='Decline Reason', copy=False)
     ip_address = fields.Char(string='IP Address', copy=False)
     user_agent = fields.Char(string='User Agent', copy=False)
 
@@ -47,3 +48,13 @@ class DosignSigner(models.Model):
     def _regenerate_token(self):
         for signer in self:
             signer.access_token = secrets.token_urlsafe(32)
+
+    def _portal_sign_path(self):
+        """Relative tokenized signing path for this signer."""
+        self.ensure_one()
+        return '/sign/%s/%s' % (self.document_id.id, self.access_token)
+
+    def _portal_sign_url(self):
+        """Absolute tokenized signing URL (used in request emails)."""
+        self.ensure_one()
+        return self.get_base_url() + self._portal_sign_path()

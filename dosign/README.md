@@ -47,3 +47,17 @@ dosign_fernet_key = <base64 Fernet key>   ; encrypts stored PKCS#12 passwords
 
 `ir.config_parameter` keys used later: `dosign.tsa_url` (default `https://freetsa.org/tsr`),
 reminder cadence and default expiry.
+
+## Public signing portal & multi-database
+
+The signing portal is reached by external signers through an unauthenticated
+tokenized link (`/sign/<id>/<token>`). Odoo must be able to resolve a **single
+database** for these sessionless requests, otherwise it returns
+`404 — No database is selected`.
+
+- Serve Dosign on a host/instance where `dbfilter` resolves to exactly one
+  database (e.g. `dbfilter = ^dosign$`). On a server hosting several databases
+  on the same `host:port` (a shared dev box), run a **dedicated Odoo instance**
+  for Dosign on its own port with that `dbfilter`.
+- Set `web.base.url` (and `web.base.url.freeze = True`) for the Dosign database
+  to that instance's public URL so request emails generate working links.

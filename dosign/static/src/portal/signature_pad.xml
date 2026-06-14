@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="dosign.SignaturePad">
+        <div class="o_dosign_pad_backdrop" t-on-click.self="() => this.props.onCancel()">
+            <div class="o_dosign_pad">
+                <div class="o_dosign_pad_head">
+                    <strong><t t-esc="props.title or 'Sign here'"/></strong>
+                    <div class="o_dosign_pad_tabs">
+                        <button class="btn btn-sm"
+                                t-att-class="state.mode === 'draw' ? 'btn-primary' : 'btn-light'"
+                                t-on-click="() => this.setMode('draw')">Draw</button>
+                        <button class="btn btn-sm"
+                                t-att-class="state.mode === 'type' ? 'btn-primary' : 'btn-light'"
+                                t-on-click="() => this.setMode('type')">Type</button>
+                    </div>
+                </div>
+
+                <div class="o_dosign_pad_body">
+                    <t t-if="state.mode === 'type'">
+                        <input type="text" class="form-control mb-2" placeholder="Type your name"
+                               t-att-value="state.typed" t-on-input="onTypeInput"/>
+                    </t>
+                    <canvas class="o_dosign_pad_canvas" t-ref="canvas"
+                            t-on-pointerdown="(ev) => state.mode === 'draw' and this.onPointerDown(ev)"/>
+                </div>
+
+                <div class="o_dosign_pad_foot">
+                    <button class="btn btn-link text-muted" t-on-click="() => this.clear()">Clear</button>
+                    <div class="ms-auto">
+                        <button class="btn btn-secondary me-2" t-on-click="() => this.props.onCancel()">Cancel</button>
+                        <button class="btn btn-primary" t-att-disabled="isEmpty"
+                                t-on-click="() => this.confirm()">Adopt &amp; Sign</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="dosign.SignPortal">
+        <div class="o_dosign_sign" t-ref="root">
+            <t t-if="state.done">
+                <div class="o_dosign_done text-center py-5">
+                    <i t-att-class="state.declined ? 'fa fa-times-circle text-danger' : 'fa fa-check-circle text-success'"
+                       style="font-size:3rem;"/>
+                    <h4 class="mt-3">
+                        <t t-if="state.declined">You declined to sign.</t>
+                        <t t-else="">Thank you — your signature has been recorded.</t>
+                    </h4>
+                </div>
+            </t>
+            <t t-else="">
+                <t t-if="state.loading">
+                    <div class="text-center text-muted py-5">
+                        <i class="fa fa-spinner fa-spin fa-2x"/>
+                        <p class="mt-2">Loading document…</p>
+                    </div>
+                </t>
+
+                <div class="o_dosign_sign_pages">
+                    <div t-foreach="state.pages" t-as="pg" t-key="pg.number"
+                         class="o_dosign_sign_page"
+                         t-attf-style="width: {{ pg.w ? pg.w + 'px' : 'auto' }};">
+                        <canvas t-att-data-page="pg.number"/>
+                        <t t-foreach="itemsForPage(pg.number)" t-as="item" t-key="item.id">
+                            <div class="o_dosign_field" t-att-style="chipStyle(item, pg)"
+                                 t-att-class="{ 'o_required': item.required, 'o_signature': isSignature(item) and imageFor(item) }">
+                                <!-- Signature / initials -->
+                                <t t-if="item.type === 'signature' or item.type === 'initials'">
+                                    <t t-if="imageFor(item)">
+                                        <img class="o_dosign_field_img" t-att-src="imageFor(item)"/>
+                                    </t>
+                                    <button t-else="" class="o_dosign_field_btn"
+                                            t-on-click="() => this.openPad(item.type)">
+                                        <i class="fa fa-pencil me-1"/>
+                                        <t t-esc="item.label"/>
+                                    </button>
+                                </t>
+                                <!-- Checkbox -->
+                                <t t-elif="item.type === 'checkbox'">
+                                    <input type="checkbox" class="o_dosign_field_check"
+                                           t-att-checked="state.values[item.id] === '1'"
+                                           t-on-change="(ev) => this.onCheckbox(item.id, ev)"/>
+                                </t>
+                                <!-- Multiline -->
+                                <t t-elif="item.type === 'multiline'">
+                                    <textarea class="o_dosign_field_input"
+                                              t-att-placeholder="item.placeholder"
+                                              t-att-value="state.values[item.id]"
+                                              t-on-input="(ev) => this.setValue(item.id, ev.target.value)"/>
+                                </t>
+                                <!-- Date -->
+                                <t t-elif="item.type === 'date'">
+                                    <input type="date" class="o_dosign_field_input"
+                                           t-att-value="state.values[item.id]"
+                                           t-on-change="(ev) => this.setValue(item.id, ev.target.value)"/>
+                                </t>
+                                <!-- Selection -->
+                                <t t-elif="item.type === 'selection' or item.type === 'radio'">
+                                    <select class="o_dosign_field_input"
+                                            t-on-change="(ev) => this.setValue(item.id, ev.target.value)">
+                                        <option value="">—</option>
+                                        <option t-foreach="item.options" t-as="opt" t-key="opt"
+                                                t-att-value="opt" t-att-selected="state.values[item.id] === opt"
+                                                t-esc="opt"/>
+                                    </select>
+                                </t>
+                                <!-- Text / auto_text -->
+                                <t t-else="">
+                                    <input type="text" class="o_dosign_field_input"
+                                           t-att-placeholder="item.placeholder or item.label"
+                                           t-att-value="state.values[item.id]"
+                                           t-on-input="(ev) => this.setValue(item.id, ev.target.value)"/>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                <div class="o_dosign_sign_bar">
+                    <span t-if="state.error" class="text-danger me-3">
+                        <t t-esc="state.error"/>
+                    </span>
+                    <button class="btn btn-outline-danger me-2" t-on-click="() => this.decline()">
+                        Decline
+                    </button>
+                    <button class="btn btn-primary" t-att-disabled="missingRequired or state.submitting"
+                            t-on-click="() => this.submit()">
+                        <t t-if="state.submitting"><i class="fa fa-spinner fa-spin me-1"/></t>
+                        Finish &amp; Sign
+                    </button>
+                </div>
+            </t>
+
+            <SignaturePad t-if="state.padFor"
+                          title="state.padFor === 'initials' ? 'Your initials' : 'Your signature'"
+                          onConfirm="(d) => this.onPadConfirm(d)"
+                          onCancel="() => this.onPadCancel()"/>
+        </div>
+    </t>
+
+</templates>
