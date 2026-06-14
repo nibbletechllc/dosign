@@ -1,5 +1,6 @@
 /** @odoo-module **/
 
+import { onWillStart, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { listView } from "@web/views/list/list_view";
 import { ListController } from "@web/views/list/list_controller";
@@ -11,6 +12,19 @@ export class DosignListController extends ListController {
         super.setup();
         this.actionService = useService("action");
         this.dialogService = useService("dialog");
+        this.orm = useService("orm");
+        this.counts = useState({ data: {} });
+        onWillStart(() => this.loadCounts());
+    }
+
+    async loadCounts() {
+        const groups = await this.orm.readGroup(
+            "dosign.document", [], ["state"], ["state"]);
+        const data = {};
+        for (const group of groups) {
+            data[group.state] = group.state_count ?? group.__count ?? 0;
+        }
+        this.counts.data = data;
     }
 
     openEditor(documentId) {

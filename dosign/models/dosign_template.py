@@ -37,3 +37,31 @@ class DosignTemplate(models.Model):
             'name': self.name or _('Template'),
             'params': {'template_id': self.id},
         }
+
+    def action_use(self):
+        """Create a document from this template and open it in the editor."""
+        self.ensure_one()
+        document_id = self.env['dosign.document'].create_from_template(self.id)
+        return self.env['dosign.document'].browse(document_id).action_open_editor()
+
+    def action_duplicate(self):
+        """Duplicate the template (PDF, roles and field layout) and open it."""
+        self.ensure_one()
+        new = self.create({
+            'name': _('%s (copy)') % (self.name or ''),
+            'company_id': self.company_id.id,
+        })
+        if self.attachment_id:
+            new.attachment_id = self.attachment_id.copy({
+                'res_model': 'dosign.template',
+                'res_id': new.id,
+            }).id
+        role_map = {}
+        for role in self.role_ids:
+            role_map[role.id] = role.copy({'template_id': new.id}).id
+        for item in self.item_ids:
+            item.copy({
+                'template_id': new.id,
+                'role_id': role_map.get(item.role_id.id),
+            })
+        return new.action_open_editor()

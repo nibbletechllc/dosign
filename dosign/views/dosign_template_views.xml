@@ -8,7 +8,14 @@
                 <field name="name"/>
                 <field name="item_count" string="Fields"/>
                 <field name="role_count" string="Signers"/>
+                <field name="attachment_id" column_invisible="1"/>
                 <field name="company_id" groups="base.group_multi_company"/>
+                <button name="action_use" type="object" string="Use"
+                        icon="fa-file-text-o" invisible="not attachment_id"/>
+                <button name="action_open_editor" type="object" string="Open editor"
+                        icon="fa-pencil" invisible="not attachment_id"/>
+                <button name="action_duplicate" type="object" string="Duplicate"
+                        icon="fa-clone"/>
             </list>
         </field>
     </record>

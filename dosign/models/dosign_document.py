@@ -198,6 +198,26 @@ class DosignDocument(models.Model):
             'target': 'new',
         }
 
+    def action_share(self):
+        """Return a client action that copies a shareable signing link."""
+        self.ensure_one()
+        signer = self.signer_ids.filtered(
+            lambda s: s.state in ('pending', 'viewed'))[:1] or self.signer_ids[:1]
+        if not signer or not signer.access_token:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'type': 'warning',
+                    'message': _('Send the document first to get a shareable link.'),
+                },
+            }
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'dosign.copy_link',
+            'params': {'url': signer._portal_sign_url()},
+        }
+
     def action_resend(self):
         for doc in self:
             if doc.state not in ('sent', 'partial', 'expired'):

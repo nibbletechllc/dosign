@@ -2,10 +2,29 @@
 <templates xml:space="preserve">
 
     <t t-name="dosign.ListButtons">
-        <button type="button" class="btn btn-primary o_dosign_upload_btn"
-                t-on-click="() => this.onUploadPdf()">
-            <i class="fa fa-cloud-upload me-1"/> Upload PDF
-        </button>
+        <div class="o_dosign_listbar d-flex align-items-center gap-2 flex-wrap">
+            <button type="button" class="btn btn-primary o_dosign_upload_btn"
+                    t-on-click="() => this.onUploadPdf()">
+                <i class="fa fa-cloud-upload me-1"/> Upload PDF
+            </button>
+            <div class="o_dosign_stats d-none d-md-flex align-items-center gap-1 ms-1">
+                <span class="badge rounded-pill text-bg-light border">
+                    Draft <strong class="ms-1" t-esc="counts.data.draft or 0"/>
+                </span>
+                <span class="badge rounded-pill text-bg-info">
+                    To Sign <strong class="ms-1" t-esc="counts.data.sent or 0"/>
+                </span>
+                <span class="badge rounded-pill text-bg-warning">
+                    In progress <strong class="ms-1" t-esc="counts.data.partial or 0"/>
+                </span>
+                <span class="badge rounded-pill text-bg-success">
+                    Signed <strong class="ms-1" t-esc="counts.data.signed or 0"/>
+                </span>
+                <span t-if="counts.data.expired" class="badge rounded-pill text-bg-danger">
+                    Expired <strong class="ms-1" t-esc="counts.data.expired"/>
+                </span>
+            </div>
+        </div>
     </t>
 
 </templates>

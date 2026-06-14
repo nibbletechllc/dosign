@@ -11,8 +11,12 @@ export class DosignTemplateListController extends ListController {
         this.actionService = useService("action");
     }
 
-    /** Clicking a template row opens it in the PDF editor (template mode). */
+    /** Clicking a template row opens it in the PDF editor (template mode);
+     *  templates without a PDF yet fall back to the form. */
     openRecord(record) {
+        if (!record.data.attachment_id) {
+            return super.openRecord(record);
+        }
         this.actionService.doAction({
             type: "ir.actions.client",
             tag: "dosign.editor",
