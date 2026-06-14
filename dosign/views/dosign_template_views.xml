@@ -143,6 +143,5 @@
         <field name="res_model">dosign.template</field>
         <field name="view_mode">kanban,list,form</field>
         <field name="search_view_id" ref="view_dosign_template_search"/>
-        <field name="context">{'search_default_my_favorites': 1}</field>
     </record>
 </odoo>

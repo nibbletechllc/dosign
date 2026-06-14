@@ -73,9 +73,13 @@ class DosignTemplate(models.Model):
                 template.favorite_user_ids = [(3, user.id)]
 
     def _search_is_favorite(self, operator, value):
-        if operator not in ('=', '!='):
-            raise ValueError(_('Unsupported operator for is_favorite search.'))
-        favorited = (operator == '=') == bool(value)
+        # Odoo 19 normalizes '='/'!=' to 'in'/'not in' with a list value, so
+        # accept all four and resolve to "do we want favorited records?".
+        if isinstance(value, (list, tuple)):
+            value = True in value
+        value = bool(value)
+        positive = operator in ('=', 'in')
+        favorited = value if positive else not value
         key = 'in' if favorited else 'not in'
         return [('favorite_user_ids', key, [self.env.uid])]
 
