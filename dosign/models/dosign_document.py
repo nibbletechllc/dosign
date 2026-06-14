@@ -1,3 +1,4 @@
+import base64
 import hashlib
 
 from odoo import models, fields, api, _
@@ -262,7 +263,10 @@ class DosignDocument(models.Model):
         template = self.env.ref(
             'dosign.mail_template_dosign_completed', raise_if_not_found=False)
         if template:
-            template.send_mail(self.id, force_send=False)
+            email_values = {}
+            if self.completed_attachment_id:
+                email_values['attachment_ids'] = [self.completed_attachment_id.id]
+            template.send_mail(self.id, force_send=False, email_values=email_values)
 
     def action_decline(self, signer, reason=None):
         self.ensure_one()
@@ -276,13 +280,94 @@ class DosignDocument(models.Model):
         return True
 
     def _finalize(self):
-        """Flatten + PAdES-seal the completed document (Phase 4).
-
-        Phase 3 reaches the 'signed' state; the cryptographic seal and the
-        flattened/sealed PDF attachment are produced in Phase 4.
-        """
+        """Flatten values + signatures, append an audit page, PAdES-seal with
+        the company certificate, and store the completed PDF. Never blocks: if
+        no valid certificate is available the flattened+hashed PDF is still
+        produced and a chatter note is posted (TDD 5.4 / 6.2)."""
         self.ensure_one()
-        return False
+        if not self.attachment_id or not self.attachment_id.raw:
+            return False
+        from odoo.addons.dosign.services import pdf_filler, pdf_sealer
+
+        items = []
+        for item in self.item_ids:
+            signer = item.signer_id
+            image = None
+            kind = item.field_type_id.item_type
+            if kind == 'signature' and signer.signature_image:
+                image = base64.b64decode(signer.signature_image)
+            elif kind == 'initials' and signer.initials_image:
+                image = base64.b64decode(signer.initials_image)
+            items.append({
+                'page': item.page,
+                'pos_x': item.pos_x, 'pos_y': item.pos_y,
+                'width': item.width, 'height': item.height,
+                'value_text': item.value_text or '',
+                'image_bytes': image,
+            })
+
+        final_bytes = pdf_filler.build_completed_pdf(
+            self.attachment_id.raw, items, self._build_audit_lines())
+        self.sha256_final = self._compute_sha256(final_bytes)
+
+        sealed = False
+        certificate = self._seal_certificate()
+        if certificate:
+            try:
+                final_bytes = pdf_sealer.seal(
+                    final_bytes,
+                    base64.b64decode(certificate.p12_file),
+                    certificate._get_password(),
+                    tsa_url=self._tsa_url())
+                self.certificate_id = certificate.id
+                self.sha256_final = self._compute_sha256(final_bytes)
+                sealed = True
+            except Exception as exc:  # noqa: BLE001 - never block finalization
+                self.message_post(body=_('Cryptographic seal skipped: %s') % exc)
+        else:
+            self.message_post(body=_(
+                'No valid certificate; document flattened and hashed but not sealed.'))
+
+        attachment = self.env['ir.attachment'].create({
+            'name': '%s (signed).pdf' % (self.name or 'document'),
+            'raw': final_bytes,
+            'mimetype': 'application/pdf',
+            'res_model': 'dosign.document',
+            'res_id': self.id,
+        })
+        self.completed_attachment_id = attachment.id
+        if sealed:
+            self._log_event('sealed')
+        return True
+
+    def _seal_certificate(self):
+        self.ensure_one()
+        return self.env['dosign.certificate'].sudo().search([
+            ('company_id', '=', self.company_id.id),
+            ('is_default', '=', True),
+            ('state', '!=', 'expired'),
+        ], limit=1)
+
+    def _tsa_url(self):
+        return self.env['ir.config_parameter'].sudo().get_param('dosign.tsa_url') or None
+
+    def _build_audit_lines(self):
+        self.ensure_one()
+        lines = [
+            'Document: %s' % (self.name or ''),
+            'Reference: %s' % (self.reference or ''),
+            'Original SHA-256: %s' % (self.sha256_original or 'n/a'),
+            '',
+            'Signers:',
+        ]
+        for signer in self.signer_ids:
+            lines.append('  - %s <%s> | %s | %s | IP %s' % (
+                signer.name, signer.email, signer.state,
+                signer.signed_on or '', signer.ip_address or '-'))
+        lines += ['', 'Event log:']
+        for log in self.log_ids.sorted('timestamp'):
+            lines.append('  %s  %s  %s' % (log.timestamp, log.action, log.actor or ''))
+        return lines
 
     # --- Helpers --------------------------------------------------------
 

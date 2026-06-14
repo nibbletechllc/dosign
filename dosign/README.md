@@ -5,31 +5,52 @@ visual signatures and PAdES cryptographic sealing. White-label by Nibble Tech LL
 
 See the full specification in `../Dosign - Technical Design Document.docx`.
 
-## Status — Phase 1 (Foundation) ✅
+## Status
 
-| Layer | Delivered |
-|-------|-----------|
-| Models | `dosign.document` (state machine + chatter), `dosign.signer`, `dosign.item` (+ `dosign.item.option`), `dosign.field.type`, `dosign.template` (+ `dosign.role`), `dosign.certificate`, `dosign.log` (append-only), `dosign.tag` |
-| Security | `Dosign / User` + `Dosign / Manager` groups, record rules (own-documents + multi-company), `ir.model.access.csv`, certificate access restricted to managers |
-| Data | `DSN/%(year)s/` sequence, 12-entry field-type catalog, default tags |
-| Views | Documents list (home) / kanban (status board) / form / search; templates, certificates, tags; menus |
-| Assets | App icon |
+| Phase | Scope | State |
+|-------|-------|-------|
+| 1. Foundation | Models, security, sequence, field-type catalog, list/kanban/form views, menus | ✅ Done |
+| 2. Editor | OWL client action: PDF.js canvas, palette, signer panel, drag/resize, autosave, upload modal | ✅ Done |
+| 3. Send & Portal | Send dialog, mail templates, tokens, public signing portal, signature pad, decline | ✅ Done |
+| 4. Finalize & Seal | `pdf_filler` (flatten + audit page), PKCS#12 parsing + Fernet password, pyHanko PAdES seal, completion mail with sealed PDF | ✅ Done |
+| 5. Ops & Polish | Crons (expiry / reminders / cert watch), reports, settings, i18n, tests | ⏳ Pending |
 
-### Deferred to later phases
-- **Phase 2** — OWL editor client action (PDF.js canvas, palette, signer panel, drag/resize, autosave) and upload modal.
-- **Phase 3** — Send dialog, mail templates, tokens delivery, public signing portal, signature dialog (`action_sign_now`, `_process_signature`).
-- **Phase 4** — `pdf_filler`, audit page, full PKCS#12 parsing + Fernet password encryption, pyHanko PAdES sealing, completion mails (`_finalize`).
-- **Phase 5** — Crons (expiry / reminders / cert watch), reports, settings, i18n, tests.
-
-Stubs raising `NotImplementedError` / `UserError` mark the deferred entry points.
+Sealing degrades gracefully: with no valid certificate the document is still
+flattened and hashed (chatter note); with a TSA URL the seal is PAdES-B-T,
+otherwise PAdES-B-B.
 
 ## Python dependencies
 
+See `requirements.txt`:
+
 ```bash
-pip install pypdf reportlab pyhanko pyhanko-certvalidator cryptography
+pip install -r requirements.txt
 ```
 
-`cryptography` ships with Odoo; `pyhanko` is the only new heavyweight dependency.
+`pyhanko` is the heavyweight new dependency. It needs `cryptography>=43`, which in
+turn needs a recent `pyOpenSSL` — older pyOpenSSL breaks with cryptography>=42
+(`module 'lib' has no attribute 'GEN_EMAIL'`), so upgrade pyOpenSSL too.
+
+For a Docker deployment, bake these into the image so they survive container
+re-creation (a plain `pip install` in a running container is lost on `pull`/recreate):
+
+```dockerfile
+FROM odoo:19
+USER root
+RUN pip install --no-cache-dir --break-system-packages \
+    pypdf reportlab pyhanko 'cryptography>=43' 'pyOpenSSL>=24'
+USER odoo
+```
+
+## Server configuration (Phase 4)
+
+Add to `odoo.conf` a stable Fernet key (used to encrypt stored PKCS#12
+passwords; keep it out of the database and back it up — losing it makes stored
+certificate passwords unrecoverable):
+
+```ini
+dosign_fernet_key = <base64 Fernet key>   ; python -c "from cryptography.fernet import Fernet;print(Fernet.generate_key().decode())"
+```
 
 ## Install
 
@@ -37,16 +58,8 @@ pip install pypdf reportlab pyhanko pyhanko-certvalidator cryptography
 2. Restart the Odoo server and update the apps list.
 3. Install **Dosign** from the Apps menu (or `-i dosign -d <db>`).
 
-## Server configuration (needed from Phase 4)
-
-Add to `odoo.conf`:
-
-```ini
-dosign_fernet_key = <base64 Fernet key>   ; encrypts stored PKCS#12 passwords
-```
-
-`ir.config_parameter` keys used later: `dosign.tsa_url` (default `https://freetsa.org/tsr`),
-reminder cadence and default expiry.
+Optional `ir.config_parameter`: `dosign.tsa_url` (RFC 3161 timestamp authority;
+when set the seal is PAdES-B-T, otherwise PAdES-B-B).
 
 ## Public signing portal & multi-database
 
