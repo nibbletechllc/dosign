@@ -22,6 +22,7 @@ class DosignTemplate(models.Model):
         string='In Progress', compute='_compute_doc_counts')
     doc_signed_count = fields.Integer(
         string='Signed', compute='_compute_doc_counts')
+    created_label = fields.Char(string='Created', compute='_compute_created_label')
 
     favorite_user_ids = fields.Many2many(
         'res.users', 'dosign_template_favorite_rel', 'template_id', 'user_id',
@@ -40,6 +41,12 @@ class DosignTemplate(models.Model):
         for template in self:
             template.item_count = len(template.item_ids)
             template.role_count = len(template.role_ids)
+
+    @api.depends('create_date')
+    def _compute_created_label(self):
+        for template in self:
+            template.created_label = (
+                template.create_date.strftime('%b %Y') if template.create_date else '')
 
     @api.depends('document_ids.state')
     def _compute_doc_counts(self):

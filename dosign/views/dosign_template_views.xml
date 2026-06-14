@@ -80,7 +80,7 @@
                 <field name="attachment_id"/>
                 <templates>
                     <t t-name="card">
-                        <div class="o_dosign_tpl_row">
+                        <div class="o_dosign_tpl_row oe_kanban_global_click">
                             <field name="is_favorite" widget="boolean_favorite" nolabel="1"
                                    class="o_dosign_tpl_star"/>
                             <div class="o_dosign_tpl_main">
@@ -90,7 +90,7 @@
                                 <div class="o_dosign_tpl_sub">
                                     <field name="create_uid" widget="many2one_avatar_user"/>
                                     <span class="o_dosign_tpl_date">
-                                        <field name="create_date" widget="date"/>
+                                        <field name="created_label"/>
                                     </span>
                                 </div>
                             </div>
