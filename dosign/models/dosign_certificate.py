@@ -131,3 +131,27 @@ class DosignCertificate(models.Model):
         for cert in self:
             if cert.p12_file and not cert.p12_password_enc:
                 raise ValidationError(_('A password is required for the PKCS#12 file.'))
+
+    @api.model
+    def _cron_certificate_watch(self):
+        """Recompute state (it depends on the current date) and alert managers
+        about certificates that are expiring soon or already expired."""
+        certs = self.search([])
+        if not certs:
+            return True
+        certs._compute_state()
+        certs.flush_recordset(['state'])
+        alerts = certs.filtered(lambda c: c.state in ('expiring_soon', 'expired'))
+        if not alerts:
+            return True
+        managers = self.env.ref('dosign.group_dosign_manager').users
+        emails = ','.join(u.email for u in managers if u.email)
+        if not emails:
+            return True
+        template = self.env.ref(
+            'dosign.mail_template_dosign_cert_alert', raise_if_not_found=False)
+        if template:
+            for cert in alerts:
+                template.send_mail(
+                    cert.id, force_send=False, email_values={'email_to': emails})
+        return True

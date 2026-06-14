@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.dosign</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Dosign" string="Dosign" name="dosign"
+                     logo="/dosign/static/description/icon.png">
+                    <block title="Signing" name="dosign_signing">
+                        <setting string="Default expiry"
+                                 help="Days before a sent document expires.">
+                            <field name="dosign_default_expiry_days"/> days
+                        </setting>
+                        <setting string="Reminders"
+                                 help="Cadence and cap of reminder emails to pending signers.">
+                            Every <field name="dosign_reminder_interval_days" class="oe_inline"/> days,
+                            up to <field name="dosign_reminder_max" class="oe_inline"/> times
+                        </setting>
+                    </block>
+                    <block title="Sealing" name="dosign_sealing">
+                        <setting string="Timestamp Authority (TSA)"
+                                 help="RFC 3161 TSA URL; when set the PAdES seal is B-T, else B-B.">
+                            <field name="dosign_tsa_url" placeholder="https://freetsa.org/tsr"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_dosign_config_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'module': 'dosign'}</field>
+    </record>
+</odoo>

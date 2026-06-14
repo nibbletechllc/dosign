@@ -61,6 +61,10 @@ class DosignDocument(models.Model):
     progress_label = fields.Char(
         string='Progress', compute='_compute_progress', store=True)
 
+    completion_hours = fields.Float(
+        string='Time to Sign (hours)', compute='_compute_completion_hours', store=True,
+        help='Hours between creation and the last signature (signed documents).')
+
     sha256_original = fields.Char(string='Original SHA-256', readonly=True, copy=False)
     sha256_final = fields.Char(string='Final SHA-256', readonly=True, copy=False)
 
@@ -74,6 +78,16 @@ class DosignDocument(models.Model):
     def _group_expand_state(self, states, domain):
         # Show fixed kanban columns in order, including empty ones.
         return ['draft', 'sent', 'partial', 'signed', 'expired']
+
+    @api.depends('state', 'create_date', 'signer_ids.signed_on')
+    def _compute_completion_hours(self):
+        for doc in self:
+            signed_on = [s.signed_on for s in doc.signer_ids if s.signed_on]
+            if doc.state == 'signed' and signed_on and doc.create_date:
+                delta = max(signed_on) - doc.create_date
+                doc.completion_hours = delta.total_seconds() / 3600.0
+            else:
+                doc.completion_hours = 0.0
 
     @api.depends('signer_ids', 'signer_ids.state')
     def _compute_progress(self):
@@ -176,7 +190,8 @@ class DosignDocument(models.Model):
             for signer in doc.signer_ids:
                 signer._ensure_token()
             if not doc.expiry_date:
-                doc.expiry_date = fields.Date.add(fields.Date.today(), days=30)
+                doc.expiry_date = fields.Date.add(
+                    fields.Date.today(), days=doc._default_expiry_days())
             doc.state = 'sent'
             doc._send_request_emails(doc._current_recipients())
         return True
@@ -422,6 +437,56 @@ class DosignDocument(models.Model):
         for log in self.log_ids.sorted('timestamp'):
             lines.append('  %s  %s  %s' % (log.timestamp, log.action, log.actor or ''))
         return lines
+
+    # --- Scheduled jobs (Phase 5) --------------------------------------
+
+    @api.model
+    def _default_expiry_days(self):
+        return int(self.env['ir.config_parameter'].sudo().get_param(
+            'dosign.default_expiry_days', 30))
+
+    @api.model
+    def _cron_expire_documents(self):
+        """Move sent/partial documents past their expiry to 'expired'."""
+        today = fields.Date.today()
+        documents = self.search([
+            ('state', 'in', ['sent', 'partial']),
+            ('expiry_date', '!=', False),
+            ('expiry_date', '<', today),
+        ])
+        template = self.env.ref(
+            'dosign.mail_template_dosign_expired', raise_if_not_found=False)
+        for doc in documents:
+            doc.state = 'expired'
+            doc._log_event('expired')
+            if template:
+                template.send_mail(doc.id, force_send=False)
+        return True
+
+    @api.model
+    def _cron_send_reminders(self):
+        """Remind pending signers every N days, capped at M reminders."""
+        icp = self.env['ir.config_parameter'].sudo()
+        interval = int(icp.get_param('dosign.reminder_interval_days', 3))
+        max_reminders = int(icp.get_param('dosign.reminder_max', 3))
+        now = fields.Datetime.now()
+        cutoff = fields.Datetime.subtract(now, days=interval)
+        template = self.env.ref(
+            'dosign.mail_template_dosign_reminder', raise_if_not_found=False)
+        for doc in self.search([('state', 'in', ['sent', 'partial'])]):
+            for signer in doc._current_recipients():
+                if signer.reminder_count >= max_reminders:
+                    continue
+                if signer.last_reminder and signer.last_reminder > cutoff:
+                    continue
+                if template:
+                    template.send_mail(signer.id, force_send=False)
+                signer.write({
+                    'reminder_count': signer.reminder_count + 1,
+                    'last_reminder': now,
+                })
+                doc._log_event('reminded', signer=signer)
+        return True
 
     # --- Helpers --------------------------------------------------------
 

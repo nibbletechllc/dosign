@@ -18,6 +18,12 @@
               action="action_dosign_template"
               sequence="20"/>
 
+    <menuitem id="menu_dosign_reports"
+              name="Reports"
+              parent="menu_dosign_root"
+              action="action_dosign_report"
+              sequence="30"/>
+
     <menuitem id="menu_dosign_config"
               name="Configuration"
               parent="menu_dosign_root"
@@ -35,4 +41,10 @@
               parent="menu_dosign_config"
               action="action_dosign_tag"
               sequence="20"/>
+
+    <menuitem id="menu_dosign_settings"
+              name="Settings"
+              parent="menu_dosign_config"
+              action="action_dosign_config_settings"
+              sequence="30"/>
 </odoo>

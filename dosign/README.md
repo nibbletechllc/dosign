@@ -13,7 +13,7 @@ See the full specification in `../Dosign - Technical Design Document.docx`.
 | 2. Editor | OWL client action: PDF.js canvas, palette, signer panel, drag/resize, autosave, upload modal | ✅ Done |
 | 3. Send & Portal | Send dialog, mail templates, tokens, public signing portal, signature pad, decline | ✅ Done |
 | 4. Finalize & Seal | `pdf_filler` (flatten + audit page), PKCS#12 parsing + Fernet password, pyHanko PAdES seal, completion mail with sealed PDF | ✅ Done |
-| 5. Ops & Polish | Crons (expiry / reminders / cert watch), reports, settings, i18n, tests | ⏳ Pending |
+| 5. Ops & Polish | Crons (expiry / reminders / cert watch), pivot/graph reports, settings, es i18n, tests | ✅ Done |
 
 Sealing degrades gracefully: with no valid certificate the document is still
 flattened and hashed (chatter note); with a TSA URL the seal is PAdES-B-T,
