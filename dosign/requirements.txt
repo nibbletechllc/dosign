@@ -1,0 +1,9 @@
+# Python dependencies for Dosign (Phase 4 sealing).
+# cryptography>=43 is required by pyhanko; that in turn requires a recent
+# pyOpenSSL (older pyOpenSSL breaks with cryptography>=42: "module 'lib' has
+# no attribute 'GEN_EMAIL'"), so pin pyOpenSSL forward as well.
+pypdf>=4.0
+reportlab>=4.0
+pyhanko>=0.25
+cryptography>=43
+pyOpenSSL>=24.0

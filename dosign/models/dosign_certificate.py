@@ -1,5 +1,8 @@
-from odoo import models, fields, api
-from odoo.exceptions import ValidationError
+import base64
+
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError, UserError
+from odoo.tools import config
 
 
 class DosignCertificate(models.Model):
@@ -10,8 +13,9 @@ class DosignCertificate(models.Model):
     name = fields.Char(string='Name', required=True)
     p12_file = fields.Binary(string='PKCS#12 File', required=True, attachment=True)
     p12_filename = fields.Char(string='File Name')
-    # Encrypted at rest with Fernet (see TDD 6.4). Write-only in views.
+    # Write-only password input; encrypted into p12_password_enc on save (6.4).
     p12_password = fields.Char(string='Password')
+    p12_password_enc = fields.Char(string='Encrypted Password', copy=False)
 
     subject = fields.Char(string='Subject', readonly=True)
     issuer = fields.Char(string='Issuer', readonly=True)
@@ -32,7 +36,6 @@ class DosignCertificate(models.Model):
     active = fields.Boolean(string='Active', default=True)
 
     _sql_constraints = [
-        # One default certificate per company (partial unique index).
         ('default_per_company_uniq',
          'EXCLUDE (company_id WITH =) WHERE (is_default IS TRUE)',
          'Only one default certificate is allowed per company.'),
@@ -52,9 +55,79 @@ class DosignCertificate(models.Model):
             else:
                 cert.state = 'valid'
 
-    @api.constrains('p12_file', 'p12_password')
+    # --- Fernet password protection (TDD 6.4) --------------------------
+
+    def _fernet(self):
+        from cryptography.fernet import Fernet
+        key = config.get('dosign_fernet_key')
+        if not key:
+            raise UserError(_(
+                'dosign_fernet_key is not configured in the Odoo server config.'))
+        return Fernet(key.encode() if isinstance(key, str) else key)
+
+    def _get_password(self):
+        """Decrypt and return the PKCS#12 password (in-memory only)."""
+        self.ensure_one()
+        if not self.p12_password_enc:
+            return ''
+        from cryptography.fernet import InvalidToken
+        try:
+            return self._fernet().decrypt(self.p12_password_enc.encode()).decode()
+        except InvalidToken:
+            raise UserError(_('Stored certificate password could not be decrypted.'))
+
+    # --- PKCS#12 parsing ------------------------------------------------
+
+    def _parse_p12(self, p12_b64, password):
+        from cryptography.hazmat.primitives.serialization import pkcs12
+        raw = base64.b64decode(p12_b64)
+        try:
+            _key, cert, _chain = pkcs12.load_key_and_certificates(
+                raw, password.encode() if password else None)
+        except (ValueError, TypeError):
+            raise UserError(_('Invalid PKCS#12 file or password.'))
+        if cert is None:
+            raise UserError(_('No certificate found in the PKCS#12 file.'))
+        return {
+            'subject': cert.subject.rfc4514_string(),
+            'issuer': cert.issuer.rfc4514_string(),
+            'serial': format(cert.serial_number, 'X'),
+            'valid_from': cert.not_valid_before_utc.replace(tzinfo=None),
+            'valid_to': cert.not_valid_after_utc.replace(tzinfo=None),
+        }
+
+    def _apply_p12(self, vals):
+        """Parse metadata + encrypt the password when a file/password is set."""
+        p12_b64 = vals.get('p12_file')
+        password = vals.get('p12_password')
+        if p12_b64 is None and password is None:
+            return vals
+        cert_file = p12_b64 if p12_b64 is not None else self.p12_file
+        pwd = password if password is not None else self._get_password()
+        if cert_file:
+            vals.update(self._parse_p12(cert_file, pwd))
+        if password is not None:
+            vals['p12_password_enc'] = self._fernet().encrypt(
+                (password or '').encode()).decode()
+            vals['p12_password'] = False  # never store plaintext
+        return vals
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        certs = self.env['dosign.certificate']
+        for vals in vals_list:
+            certs |= super().create(self.browse()._apply_p12(dict(vals)))
+        return certs
+
+    def write(self, vals):
+        if 'p12_file' in vals or 'p12_password' in vals:
+            for cert in self:
+                super(DosignCertificate, cert).write(cert._apply_p12(dict(vals)))
+            return True
+        return super().write(vals)
+
+    @api.constrains('p12_file', 'p12_password_enc')
     def _check_certificate(self):
-        # Full PKCS#12 parsing + Fernet password verification lands in Phase 4.
         for cert in self:
-            if cert.p12_file and not cert.p12_password:
-                raise ValidationError('A password is required for the PKCS#12 file.')
+            if cert.p12_file and not cert.p12_password_enc:
+                raise ValidationError(_('A password is required for the PKCS#12 file.'))
