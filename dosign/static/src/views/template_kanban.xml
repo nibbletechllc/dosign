@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="dosign.TemplateKanbanButtons">
+        <button type="button" class="btn btn-primary o_dosign_upload_btn"
+                t-on-click="() => this.onUploadPdf()">
+            <i class="fa fa-cloud-upload me-1"/> Upload PDF
+        </button>
+    </t>
+
+</templates>

@@ -10,6 +10,8 @@ export class DosignSignerPanel extends Component {
         items: Array,
         activeSignerId: { type: [Number, { value: null }], optional: true },
         readonly: { type: Boolean, optional: true },
+        isTemplate: { type: Boolean, optional: true },
+        participantField: { type: String, optional: true },
         onSelect: Function,
         onAdd: Function,
         onUpdate: Function,
@@ -21,8 +23,9 @@ export class DosignSignerPanel extends Component {
     }
 
     fieldCount(signer) {
+        const field = this.props.participantField || "signer_id";
         return this.props.items.filter(
-            (it) => it.signer_id && it.signer_id[0] === signer.id
+            (it) => it[field] && it[field][0] === signer.id
         ).length;
     }
 

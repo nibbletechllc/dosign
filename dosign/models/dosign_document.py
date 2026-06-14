@@ -129,6 +129,40 @@ class DosignDocument(models.Model):
             })
         return document.id
 
+    def action_save_as_template(self, name=None):
+        """Create a reusable template from this document: copy the PDF, turn each
+        signer into a role, and copy the field layout bound to those roles."""
+        self.ensure_one()
+        template = self.env['dosign.template'].create({
+            'name': name or _('%s Template') % (self.name or ''),
+            'company_id': self.company_id.id,
+        })
+        if self.attachment_id:
+            attachment = self.attachment_id.copy({
+                'res_model': 'dosign.template',
+                'res_id': template.id,
+                'name': '%s.pdf' % (template.name or 'template'),
+            })
+            template.attachment_id = attachment.id
+        role_by_signer = {}
+        for signer in self.signer_ids:
+            role = self.env['dosign.role'].create({
+                'template_id': template.id,
+                'name': signer.name,
+                'sequence': signer.sequence,
+                'color': signer.color,
+            })
+            role_by_signer[signer.id] = role.id
+        for item in self.item_ids:
+            item.copy({
+                'document_id': False,
+                'template_id': template.id,
+                'signer_id': False,
+                'role_id': role_by_signer.get(item.signer_id.id),
+                'value_text': False,
+            })
+        return template.action_open_editor()
+
     # --- State machine --------------------------------------------------
 
     def action_send(self):
@@ -162,6 +196,26 @@ class DosignDocument(models.Model):
             'type': 'ir.actions.act_url',
             'url': signer._portal_sign_path(),
             'target': 'new',
+        }
+
+    def action_share(self):
+        """Return a client action that copies a shareable signing link."""
+        self.ensure_one()
+        signer = self.signer_ids.filtered(
+            lambda s: s.state in ('pending', 'viewed'))[:1] or self.signer_ids[:1]
+        if not signer or not signer.access_token:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'type': 'warning',
+                    'message': _('Send the document first to get a shareable link.'),
+                },
+            }
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'dosign.copy_link',
+            'params': {'url': signer._portal_sign_url()},
         }
 
     def action_resend(self):

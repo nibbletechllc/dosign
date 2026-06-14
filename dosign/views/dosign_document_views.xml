@@ -22,8 +22,16 @@
                        decoration-muted="state in ('draft', 'cancelled')"/>
                 <button name="action_open_editor" type="object" string="Continue editing"
                         icon="fa-pencil" invisible="state != 'draft'"/>
+                <button name="action_send" type="object" string="Send"
+                        icon="fa-paper-plane" invisible="state != 'draft'"/>
+                <button name="action_sign_now" type="object" string="Sign now"
+                        icon="fa-pencil-square-o"
+                        invisible="state not in ('draft', 'sent', 'partial')"/>
+                <button name="action_share" type="object" string="Share"
+                        icon="fa-share-alt"
+                        invisible="state not in ('sent', 'partial', 'signed')"/>
                 <button name="action_resend" type="object" string="Resend"
-                        icon="fa-paper-plane" invisible="state not in ('sent', 'partial')"/>
+                        icon="fa-refresh" invisible="state not in ('sent', 'partial')"/>
                 <button name="action_resend" type="object" string="Send again"
                         icon="fa-refresh" invisible="state != 'expired'"/>
             </list>
@@ -88,6 +96,8 @@
                             invisible="state in ('signed', 'cancelled')"/>
                     <button name="action_draft" type="object" string="Reset to Draft"
                             invisible="state != 'cancelled'"/>
+                    <button name="action_save_as_template" type="object" string="Save as Template"
+                            invisible="not attachment_id"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,sent,partial,signed"/>
                 </header>
