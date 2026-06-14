@@ -101,9 +101,12 @@ class DosignPortal(http.Controller):
         if signer.state == 'signed':
             return request.make_json_response({'error': 'Already signed.'}, status=400)
 
-        data = request.get_json_data()
-        raw_values = data.get('values') or {}
-        item_values = {int(k): (v or '') for k, v in raw_values.items()}
+        try:
+            data = request.get_json_data()
+            raw_values = data.get('values') or {}
+            item_values = {int(k): (v or '') for k, v in raw_values.items()}
+        except (ValueError, TypeError, AttributeError):
+            return request.make_json_response({'error': 'Malformed request.'}, status=400)
         signature = self._strip_data_url(data.get('signature'))
         initials = self._strip_data_url(data.get('initials'))
 
