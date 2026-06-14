@@ -4,7 +4,7 @@
         <field name="name">dosign.template.list</field>
         <field name="model">dosign.template</field>
         <field name="arch" type="xml">
-            <list>
+            <list js_class="dosign_template_list">
                 <field name="name"/>
                 <field name="item_count" string="Fields"/>
                 <field name="role_count" string="Signers"/>
