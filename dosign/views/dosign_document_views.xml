@@ -88,6 +88,8 @@
                             invisible="state in ('signed', 'cancelled')"/>
                     <button name="action_draft" type="object" string="Reset to Draft"
                             invisible="state != 'cancelled'"/>
+                    <button name="action_save_as_template" type="object" string="Save as Template"
+                            invisible="not attachment_id"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,sent,partial,signed"/>
                 </header>

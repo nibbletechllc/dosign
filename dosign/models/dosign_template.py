@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 
 
 class DosignTemplate(models.Model):
@@ -27,3 +27,13 @@ class DosignTemplate(models.Model):
         for template in self:
             template.item_count = len(template.item_ids)
             template.role_count = len(template.role_ids)
+
+    def action_open_editor(self):
+        """Open the OWL editor in template mode (roles instead of signers)."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'dosign.editor',
+            'name': self.name or _('Template'),
+            'params': {'template_id': self.id},
+        }

@@ -25,6 +25,21 @@ class DosignEditorController(http.Controller):
         ]
         return request.make_response(content, headers)
 
+    @http.route('/dosign/template/<int:template_id>/pdf', type='http', auth='user')
+    def template_pdf(self, template_id, **kw):
+        template = request.env['dosign.template'].browse(template_id).exists()
+        if not template:
+            return request.not_found()
+        template.check_access('read')
+        attachment = template.attachment_id.sudo()
+        if not attachment or not attachment.raw:
+            return request.not_found()
+        return request.make_response(attachment.raw, [
+            ('Content-Type', 'application/pdf'),
+            ('Content-Length', str(len(attachment.raw))),
+            ('Content-Disposition', 'inline; filename="%s.pdf"' % (template.name or 'template')),
+        ])
+
     @http.route('/dosign/upload', type='http', auth='user', methods=['POST'], csrf=True)
     def upload(self, ufile=None, **kw):
         if not ufile:

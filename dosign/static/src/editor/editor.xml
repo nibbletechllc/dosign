@@ -18,16 +18,23 @@
                            t-att-value="state.name" t-att-readonly="readonly"
                            t-on-change="onNameChange"/>
                     <span class="badge text-bg-secondary ms-2 text-uppercase">
-                        <t t-esc="state.stateValue"/>
+                        <t t-esc="isTemplate ? 'Template' : state.stateValue"/>
                     </span>
                     <div class="ms-auto d-flex gap-2">
-                        <button class="btn btn-secondary" t-if="state.stateValue === 'draft'"
-                                t-on-click="() => this.signNow()">
-                            Sign Now
-                        </button>
-                        <button class="btn btn-primary" t-if="state.stateValue === 'draft'"
-                                t-on-click="() => this.send()">
-                            <i class="fa fa-paper-plane me-1"/> Send
+                        <t t-if="!isTemplate and state.stateValue === 'draft'">
+                            <button class="btn btn-light" t-on-click="() => this.saveAsTemplate()">
+                                <i class="fa fa-clone me-1"/> Save as template
+                            </button>
+                            <button class="btn btn-secondary" t-on-click="() => this.signNow()">
+                                Sign Now
+                            </button>
+                            <button class="btn btn-primary" t-on-click="() => this.send()">
+                                <i class="fa fa-paper-plane me-1"/> Send
+                            </button>
+                        </t>
+                        <button t-if="isTemplate" class="btn btn-primary"
+                                t-on-click="() => this.backToList()">
+                            Done
                         </button>
                     </div>
                 </div>
@@ -40,6 +47,8 @@
                             items="state.items"
                             activeSignerId="state.activeSignerId"
                             readonly="readonly"
+                            isTemplate="isTemplate"
+                            participantField="participantField"
                             onSelect="(id) => this.selectSigner(id)"
                             onAdd="() => this.addSigner()"
                             onUpdate="(id, vals) => this.updateSigner(id, vals)"
@@ -56,6 +65,7 @@
                         signers="state.signers"
                         activeSignerId="state.activeSignerId"
                         editable="!readonly"
+                        participantField="participantField"
                         onAddItem="(ft, page, x, y) => this.addItem(ft, page, x, y)"
                         onUpdateItem="(id, vals) => this.updateItem(id, vals)"
                         onRemoveItem="(id) => this.removeItem(id)"/>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="dosign.RoleMapDialog">
+        <Dialog title="'Assign signers to roles'" size="'md'">
+            <p class="text-muted">
+                This document was created from a template. Assign a real signer to
+                each role.
+            </p>
+            <div t-foreach="state.entries" t-as="entry" t-key="entry.role_id" class="mb-3">
+                <label class="form-label fw-bold mb-1">
+                    <i class="fa fa-user-circle-o me-1"/>
+                    <t t-esc="entry.role_name"/>
+                </label>
+                <div class="row g-2">
+                    <div class="col-5">
+                        <input type="text" class="form-control form-control-sm"
+                               placeholder="Name" t-att-value="entry.name"
+                               t-on-input="(ev) => entry.name = ev.target.value"/>
+                    </div>
+                    <div class="col-7">
+                        <input type="email" class="form-control form-control-sm"
+                               placeholder="Email" t-att-value="entry.email"
+                               t-on-input="(ev) => entry.email = ev.target.value"/>
+                    </div>
+                </div>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-att-disabled="!valid"
+                        t-on-click="() => this.confirm()">
+                    Assign
+                </button>
+                <button class="btn btn-secondary" t-on-click="() => this.props.close()">
+                    Cancel
+                </button>
+            </t>
+        </Dialog>
+    </t>
+
+</templates>

@@ -129,6 +129,40 @@ class DosignDocument(models.Model):
             })
         return document.id
 
+    def action_save_as_template(self, name=None):
+        """Create a reusable template from this document: copy the PDF, turn each
+        signer into a role, and copy the field layout bound to those roles."""
+        self.ensure_one()
+        template = self.env['dosign.template'].create({
+            'name': name or _('%s Template') % (self.name or ''),
+            'company_id': self.company_id.id,
+        })
+        if self.attachment_id:
+            attachment = self.attachment_id.copy({
+                'res_model': 'dosign.template',
+                'res_id': template.id,
+                'name': '%s.pdf' % (template.name or 'template'),
+            })
+            template.attachment_id = attachment.id
+        role_by_signer = {}
+        for signer in self.signer_ids:
+            role = self.env['dosign.role'].create({
+                'template_id': template.id,
+                'name': signer.name,
+                'sequence': signer.sequence,
+                'color': signer.color,
+            })
+            role_by_signer[signer.id] = role.id
+        for item in self.item_ids:
+            item.copy({
+                'document_id': False,
+                'template_id': template.id,
+                'signer_id': False,
+                'role_id': role_by_signer.get(item.signer_id.id),
+                'value_text': False,
+            })
+        return template.action_open_editor()
+
     # --- State machine --------------------------------------------------
 
     def action_send(self):

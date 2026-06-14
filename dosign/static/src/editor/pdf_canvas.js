@@ -15,6 +15,7 @@ export class DosignPdfCanvas extends Component {
         signers: Array,
         activeSignerId: { type: [Number, { value: null }], optional: true },
         editable: { type: Boolean, optional: true },
+        participantField: { type: String, optional: true },
         onAddItem: Function,
         onUpdateItem: Function,
         onRemoveItem: Function,
@@ -114,8 +115,9 @@ export class DosignPdfCanvas extends Component {
     }
 
     colorOf(item) {
-        const signerId = Array.isArray(item.signer_id) ? item.signer_id[0] : item.signer_id;
-        const signer = this.props.signers.find((s) => s.id === signerId);
+        const ref = item[this.props.participantField || "signer_id"];
+        const id = Array.isArray(ref) ? ref[0] : ref;
+        const signer = this.props.signers.find((s) => s.id === id);
         return signer ? signerColor(signer.color) : "#888888";
     }
 
