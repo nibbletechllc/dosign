@@ -103,7 +103,9 @@ class DosignCertificate(models.Model):
         if p12_b64 is None and password is None:
             return vals
         cert_file = p12_b64 if p12_b64 is not None else self.p12_file
-        pwd = password if password is not None else self._get_password()
+        # On create `self` is an empty recordset, so only decrypt the stored
+        # password when we actually have a single existing record.
+        pwd = password if password is not None else (self._get_password() if self else '')
         if cert_file:
             vals.update(self._parse_p12(cert_file, pwd))
         if password is not None:

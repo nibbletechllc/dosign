@@ -240,7 +240,8 @@ class DosignDocument(models.Model):
             if doc.state == 'expired':
                 doc.state = 'sent'
                 if not doc.expiry_date or doc.expiry_date < fields.Date.today():
-                    doc.expiry_date = fields.Date.add(fields.Date.today(), days=30)
+                    doc.expiry_date = fields.Date.add(
+                        fields.Date.today(), days=doc._default_expiry_days())
             for signer in doc.signer_ids.filtered(lambda s: s.state in ('pending', 'viewed')):
                 signer._regenerate_token()
             doc._log_event('resent')
@@ -341,6 +342,10 @@ class DosignDocument(models.Model):
         self.ensure_one()
         signer.write({'state': 'declined', 'decline_reason': reason})
         self._log_event('declined', signer=signer)
+        # A declined signer means the document can no longer be fully signed, so
+        # move it to a terminal state instead of leaving it stuck in 'partial'.
+        if self.state in ('sent', 'partial'):
+            self.state = 'cancelled'
         template = self.env.ref(
             'dosign.mail_template_dosign_declined', raise_if_not_found=False)
         if template:

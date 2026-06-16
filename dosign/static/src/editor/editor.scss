@@ -62,6 +62,15 @@
     .o_dosign_color_dot {
         width: 14px; height: 14px; border-radius: 50%; display: inline-block;
     }
+    .o_dosign_contact,
+    .o_dosign_contact .o-autocomplete {
+        width: 100%;
+    }
+    .o_dosign_contact .o-autocomplete--input {
+        width: 100%;
+        font-size: .8rem;
+        padding: .15rem .4rem;
+    }
 }
 
 // --- Field palette ---

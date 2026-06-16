@@ -1,6 +1,6 @@
 import secrets
 
-from odoo import models, fields
+from odoo import models, fields, api
 
 
 class DosignSigner(models.Model):
@@ -39,6 +39,12 @@ class DosignSigner(models.Model):
 
     reminder_count = fields.Integer(string='Reminders Sent', default=0, copy=False)
     last_reminder = fields.Datetime(string='Last Reminder', copy=False)
+
+    @api.onchange('partner_id')
+    def _onchange_partner_id(self):
+        if self.partner_id:
+            self.name = self.partner_id.name
+            self.email = self.partner_id.email
 
     def _ensure_token(self):
         for signer in self:

@@ -97,6 +97,19 @@ class TestDosign(TransactionCase):
         self.Document._cron_expire_documents()
         self.assertEqual(doc.state, 'expired')
 
+    def test_decline_cancels_document(self):
+        doc = self._make_document()
+        signer = self.env['dosign.signer'].create({
+            'document_id': doc.id, 'name': 'A', 'email': 'a@x.com'})
+        self.env['dosign.item'].create({
+            'document_id': doc.id, 'field_type_id': self.signature_type.id,
+            'signer_id': signer.id, 'page': 1,
+            'pos_x': 0.1, 'pos_y': 0.1, 'width': 0.2, 'height': 0.06})
+        doc.action_send()
+        doc.action_decline(signer, reason='No thanks')
+        self.assertEqual(signer.state, 'declined')
+        self.assertEqual(doc.state, 'cancelled')
+
     def test_template_flow_and_favorites(self):
         doc = self._make_document('Tpl Source')
         signer = self.env['dosign.signer'].create({

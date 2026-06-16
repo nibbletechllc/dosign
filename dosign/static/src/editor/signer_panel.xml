@@ -30,6 +30,14 @@
                         <i class="fa fa-trash-o"/>
                     </button>
                 </div>
+                <div t-if="!props.isTemplate and !props.readonly"
+                     class="o_dosign_contact mb-1" t-on-click.stop="">
+                    <AutoComplete
+                        value="partnerValue(signer)"
+                        sources="partnerSources(signer)"
+                        placeholder="'Link an Odoo contact…'"
+                        resetOnSelect="false"/>
+                </div>
                 <input type="text" class="form-control form-control-sm"
                        t-att-class="{ 'mb-1': !props.isTemplate }"
                        t-att-placeholder="props.isTemplate ? 'Role name' : 'Name'"
