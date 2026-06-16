@@ -27,3 +27,8 @@ odoo.conf
 
 # Claude Code local state
 .claude/
+
+# Internal design docs — not part of the module
+Dosign - Technical Design Document.docx
+Dosign Flow.html
+dosign-template-aui.png
