@@ -5,33 +5,30 @@
         <div class="o_dosign_pad_backdrop" t-on-click.self="() => this.props.onCancel()">
             <div class="o_dosign_pad">
                 <div class="o_dosign_pad_head">
-                    <strong><t t-esc="props.title or 'Sign here'"/></strong>
-                    <div class="o_dosign_pad_tabs">
-                        <button class="btn btn-sm"
-                                t-att-class="state.mode === 'draw' ? 'btn-primary' : 'btn-light'"
-                                t-on-click="() => this.setMode('draw')">Draw</button>
-                        <button class="btn btn-sm"
-                                t-att-class="state.mode === 'type' ? 'btn-primary' : 'btn-light'"
-                                t-on-click="() => this.setMode('type')">Type</button>
-                    </div>
+                    <strong><t t-esc="props.title or 'Adopt Your Signature'"/></strong>
+                    <button class="btn btn-link o_dosign_pad_close p-0"
+                            t-on-click="() => this.props.onCancel()">
+                        <i class="fa fa-times"/>
+                    </button>
                 </div>
-
                 <div class="o_dosign_pad_body">
-                    <t t-if="state.mode === 'type'">
-                        <input type="text" class="form-control mb-2" placeholder="Type your name"
-                               t-att-value="state.typed" t-on-input="onTypeInput"/>
-                    </t>
-                    <canvas class="o_dosign_pad_canvas" t-ref="canvas"
-                            t-on-pointerdown="(ev) => state.mode === 'draw' and this.onPointerDown(ev)"/>
+                    <NameAndSignature t-props="nameAndSignatureProps"/>
+                    <p class="o_dosign_consent text-muted small mt-2 mb-0">
+                        By signing, I agree that the chosen signature/initials will be a
+                        valid electronic representation of my hand-written signature/initials
+                        for all purposes when it is used on documents, including legally
+                        binding contracts.
+                    </p>
                 </div>
-
                 <div class="o_dosign_pad_foot">
-                    <button class="btn btn-link text-muted" t-on-click="() => this.clear()">Clear</button>
-                    <div class="ms-auto">
-                        <button class="btn btn-secondary me-2" t-on-click="() => this.props.onCancel()">Cancel</button>
-                        <button class="btn btn-primary" t-att-disabled="isEmpty"
-                                t-on-click="() => this.confirm()">Adopt &amp; Sign</button>
-                    </div>
+                    <button class="btn btn-secondary me-2"
+                            t-on-click="() => this.props.onCancel()">
+                        Cancel
+                    </button>
+                    <button class="btn btn-primary" t-att-disabled="signature.isSignatureEmpty"
+                            t-on-click="() => this.confirm()">
+                        Adopt &amp; Sign
+                    </button>
                 </div>
             </div>
         </div>

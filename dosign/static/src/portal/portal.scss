@@ -115,9 +115,11 @@
         background: #fff;
         border-radius: 8px;
         width: 92vw;
-        max-width: 520px;
+        max-width: 640px;
         box-shadow: 0 8px 30px rgba(0, 0, 0, .3);
     }
+    .o_dosign_pad_head { justify-content: space-between; }
+    .o_dosign_pad_close { color: #888; }
     .o_dosign_pad_head {
         display: flex;
         align-items: center;

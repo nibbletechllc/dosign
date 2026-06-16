@@ -97,7 +97,9 @@
             </t>
 
             <SignaturePad t-if="state.padFor"
-                          title="state.padFor === 'initials' ? 'Your initials' : 'Your signature'"
+                          title="state.padFor === 'initials' ? 'Adopt Your Initials' : 'Adopt Your Signature'"
+                          defaultName="data.signer_name"
+                          signatureType="state.padFor === 'initials' ? 'initial' : 'signature'"
                           onConfirm="(d) => this.onPadConfirm(d)"
                           onCancel="() => this.onPadCancel()"/>
         </div>
