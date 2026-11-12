@@ -81,11 +81,13 @@ def build_completed_pdf(original_bytes, items, audit_lines=None):
         by_page.setdefault(item["page"], []).append(item)
 
     for index, page in enumerate(reader.pages, start=1):
+        # Attach the page to the writer before merging: pypdf 7 no longer
+        # allows modifying the contents of a page that belongs to a reader.
+        page = writer.add_page(page)
         if index in by_page:
             pw = float(page.mediabox.width)
             ph = float(page.mediabox.height)
             page.merge_page(_draw_overlay(pw, ph, by_page[index]))
-        writer.add_page(page)
 
     if audit_lines:
         writer.add_page(_audit_page(audit_lines, letter))
