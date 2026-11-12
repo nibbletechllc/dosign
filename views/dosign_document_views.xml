@@ -27,6 +27,8 @@
                 <button name="action_sign_now" type="object" string="Sign now"
                         icon="fa-pencil-square-o"
                         invisible="state not in ('draft', 'sent', 'partial')"/>
+                <button name="action_download_signed" type="object" string="Download"
+                        icon="fa-download" invisible="state != 'signed'"/>
                 <button name="action_share" type="object" string="Share"
                         icon="fa-share-alt"
                         invisible="state not in ('sent', 'partial', 'signed')"/>
@@ -86,6 +88,8 @@
                 <header>
                     <button name="action_open_editor" type="object" string="Open Editor"
                             class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_download_signed" type="object" string="Download Signed PDF"
+                            class="oe_highlight" icon="fa-download" invisible="state != 'signed'"/>
                     <button name="action_send" type="object" string="Send"
                             invisible="state != 'draft'"/>
                     <button name="action_sign_now" type="object" string="Sign Now"

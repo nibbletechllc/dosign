@@ -216,9 +216,14 @@ class DosignDocument(models.Model):
     def action_share(self):
         """Return a client action that copies a shareable signing link."""
         self.ensure_one()
+        # The link is a signer's credential: only the sender or a manager may
+        # hand it out, not every user who can read the document.
+        if not (self.env.su or self.user_id == self.env.user
+                or self.env.user.has_group('dosign.group_dosign_manager')):
+            raise UserError(_('Only the sender of the document can share its signing link.'))
         signer = self.signer_ids.filtered(
             lambda s: s.state in ('pending', 'viewed'))[:1] or self.signer_ids[:1]
-        if not signer or not signer.access_token:
+        if not signer or not signer.sudo().access_token:
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
@@ -231,6 +236,17 @@ class DosignDocument(models.Model):
             'type': 'ir.actions.client',
             'tag': 'dosign.copy_link',
             'params': {'url': signer._portal_sign_url()},
+        }
+
+    def action_download_signed(self):
+        """Download the completed PDF (available once every signer has signed)."""
+        self.ensure_one()
+        if not self.completed_attachment_id:
+            raise UserError(_('The signed PDF is available once all signers have signed.'))
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/dosign/document/%s/signed_pdf' % self.id,
+            'target': 'download',
         }
 
     def action_resend(self):
@@ -261,7 +277,29 @@ class DosignDocument(models.Model):
             if doc.state != 'cancelled':
                 raise UserError(_('Only cancelled documents can be reset to draft.'))
             doc.state = 'draft'
+            # A draft can be edited again, so nothing captured against the
+            # previous version may survive: drop signatures, values and links.
+            doc.signer_ids.sudo().write({
+                'state': 'pending',
+                'access_token': False,
+                'signature_image': False,
+                'initials_image': False,
+                'signed_on': False,
+                'decline_reason': False,
+                'ip_address': False,
+                'user_agent': False,
+                'reminder_count': 0,
+                'last_reminder': False,
+            })
+            doc.item_ids.sudo().write({'value_text': False})
+            doc._log_event('reset')
         return True
+
+    def write(self, vals):
+        if 'attachment_id' in vals and not self.env.su:
+            if any(doc.state != 'draft' for doc in self):
+                raise UserError(_('The PDF can only be replaced while the document is a draft.'))
+        return super().write(vals)
 
     def _validate_for_send(self):
         self.ensure_one()
@@ -302,6 +340,10 @@ class DosignDocument(models.Model):
                            initials=None, metadata=None):
         """Store a signer's submitted values + signature and advance state."""
         self.ensure_one()
+        # Private signing flow: the caller has already authenticated the signer
+        # (portal token), so capture the result with elevated rights.
+        self = self.sudo()
+        signer = signer.sudo()
         metadata = metadata or {}
         for item in signer.item_ids:
             if item.id in item_values:
@@ -340,7 +382,7 @@ class DosignDocument(models.Model):
 
     def action_decline(self, signer, reason=None):
         self.ensure_one()
-        signer.write({'state': 'declined', 'decline_reason': reason})
+        signer.sudo().write({'state': 'declined', 'decline_reason': reason})
         self._log_event('declined', signer=signer)
         # A declined signer means the document can no longer be fully signed, so
         # move it to a terminal state instead of leaving it stuck in 'partial'.
@@ -367,9 +409,11 @@ class DosignDocument(models.Model):
         for item in self.item_ids:
             signer = item.signer_id
             image = None
+            frame_hash = None
             kind = item.field_type_id.item_type
             if kind == 'signature' and signer.signature_image:
                 image = base64.b64decode(signer.signature_image)
+                frame_hash = signer.frame_hash or ''
             elif kind == 'initials' and signer.initials_image:
                 image = base64.b64decode(signer.initials_image)
             items.append({
@@ -378,6 +422,7 @@ class DosignDocument(models.Model):
                 'width': item.width, 'height': item.height,
                 'value_text': item.value_text or '',
                 'image_bytes': image,
+                'frame_hash': frame_hash,
             })
 
         final_bytes = pdf_filler.build_completed_pdf(
@@ -486,7 +531,7 @@ class DosignDocument(models.Model):
                     continue
                 if template:
                     template.send_mail(signer.id, force_send=False)
-                signer.write({
+                signer.sudo().write({
                     'reminder_count': signer.reminder_count + 1,
                     'last_reminder': now,
                 })

@@ -5,6 +5,41 @@ an audit page. Coordinates are normalized 0..1 from the top-left of each page
 import io
 
 
+FRAME_CAPTION = "Signed with Dosign"
+FRAME_COLOR = (0.373, 0.659, 0.651)  # #5fa8a6, same as the on-screen frame
+
+
+def _draw_signature_frame(c, x, y, w, h, frame_hash):
+    """Stamp the signature frame around the image box (x, y, w, h): a rounded
+    bracket on the left, a caption on the top edge and the signature id on the
+    bottom edge. Mirrors static/src/common/signature_frame.scss."""
+    pad = 2.5
+    left, bottom, top = x - pad, y - pad, y + h + pad
+    arm = w * 0.18
+    radius = min(6.0, (top - bottom) / 2, arm)
+    font_size = max(4.0, min(7.0, h * 0.16))
+    text_x = left + arm + 2
+
+    c.saveState()
+    c.setStrokeColorRGB(*FRAME_COLOR)
+    c.setFillColorRGB(*FRAME_COLOR)
+    c.setLineWidth(0.8)
+    path = c.beginPath()
+    path.moveTo(left + arm, top)
+    path.lineTo(left + radius, top)
+    path.arcTo(left, top - 2 * radius, left + 2 * radius, top, 90, 90)
+    path.lineTo(left, bottom + radius)
+    path.arcTo(left, bottom, left + 2 * radius, bottom + 2 * radius, 180, 90)
+    path.lineTo(left + arm, bottom)
+    c.drawPath(path, stroke=1, fill=0)
+    c.setFont("Helvetica", font_size)
+    c.drawString(text_x, top - font_size * 0.35, FRAME_CAPTION)
+    if frame_hash:
+        c.setFont("Courier", font_size)
+        c.drawString(text_x, bottom - font_size * 0.35, "%s..." % frame_hash)
+    c.restoreState()
+
+
 def _draw_overlay(width, height, items):
     from reportlab.pdfgen import canvas
     from reportlab.lib.utils import ImageReader
@@ -31,6 +66,8 @@ def _draw_overlay(width, height, items):
                 draw_w = (draw_h * iw / ih) if ih else field_w
             c.drawImage(reader, x, y_bottom, width=draw_w, height=draw_h,
                         mask="auto", preserveAspectRatio=True, anchor="sw")
+            if item.get("frame_hash") is not None:
+                _draw_signature_frame(c, x, y_bottom, draw_w, draw_h, item["frame_hash"])
         elif item.get("value_text"):
             font_size = max(6, field_h * 0.6)
             c.setFont("Helvetica", font_size)
@@ -81,11 +118,13 @@ def build_completed_pdf(original_bytes, items, audit_lines=None):
         by_page.setdefault(item["page"], []).append(item)
 
     for index, page in enumerate(reader.pages, start=1):
+        # Attach the page to the writer before merging: pypdf 7 no longer
+        # allows modifying the contents of a page that belongs to a reader.
+        page = writer.add_page(page)
         if index in by_page:
             pw = float(page.mediabox.width)
             ph = float(page.mediabox.height)
             page.merge_page(_draw_overlay(pw, ph, by_page[index]))
-        writer.add_page(page)
 
     if audit_lines:
         writer.add_page(_audit_page(audit_lines, letter))

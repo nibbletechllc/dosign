@@ -1,7 +1,7 @@
 import base64
 
 from odoo.exceptions import AccessError, UserError
-from odoo.tests.common import TransactionCase, tagged
+from odoo.tests.common import TransactionCase, new_test_user, tagged
 
 # Minimal one-page PDF (US Letter).
 _PDF = base64.b64decode(
@@ -74,6 +74,13 @@ class TestDosign(TransactionCase):
         self.assertEqual(signer.state, 'signed')
         self.assertTrue(doc.completed_attachment_id)
         self.assertTrue(doc.sha256_final)
+        action = doc.action_download_signed()
+        self.assertEqual(action['url'], '/dosign/document/%s/signed_pdf' % doc.id)
+
+    def test_download_requires_completed_document(self):
+        doc = self._make_document()
+        with self.assertRaises(UserError):
+            doc.action_download_signed()
 
     def test_log_is_append_only(self):
         doc = self._make_document()
@@ -130,3 +137,128 @@ class TestDosign(TransactionCase):
         new_doc = self.Document.browse(new_id)
         self.assertEqual(len(new_doc.item_ids), 1)
         self.assertTrue(new_doc.item_ids.role_id)
+
+
+@tagged('post_install', '-at_install')
+class TestDosignAccess(TransactionCase):
+    """Record rules and integrity guards, exercised as non-admin users."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.signature_type = cls.env.ref('dosign.field_type_signature')
+        cls.alice = new_test_user(
+            cls.env, login='alice@dosign.test', email='alice@dosign.test',
+            groups='dosign.group_dosign_user')
+        cls.bob = new_test_user(
+            cls.env, login='bob@dosign.test', email='bob@dosign.test',
+            groups='dosign.group_dosign_user')
+
+    def _make_document(self, user, signer_email='ext@x.com'):
+        """Create, as `user`, a draft with one signer and one signature field."""
+        env = self.env(user=user)
+        doc = env['dosign.document'].create({'name': 'Access Doc'})
+        attachment = self.env['ir.attachment'].create({
+            'name': 's.pdf', 'raw': _PDF, 'mimetype': 'application/pdf',
+            'res_model': 'dosign.document', 'res_id': doc.id,
+        })
+        doc.attachment_id = attachment.id
+        signer = env['dosign.signer'].create({
+            'document_id': doc.id, 'name': 'Ext', 'email': signer_email})
+        item = env['dosign.item'].create({
+            'document_id': doc.id, 'field_type_id': self.signature_type.id,
+            'signer_id': signer.id, 'page': 1,
+            'pos_x': 0.1, 'pos_y': 0.1, 'width': 0.2, 'height': 0.06})
+        return doc, signer, item
+
+    def test_children_hidden_from_other_users(self):
+        doc, signer, item = self._make_document(self.alice)
+        bob_env = self.env(user=self.bob)
+        self.assertFalse(bob_env['dosign.signer'].search([('id', '=', signer.id)]))
+        self.assertFalse(bob_env['dosign.item'].search([('id', '=', item.id)]))
+        self.assertFalse(bob_env['dosign.log'].search([('document_id', '=', doc.id)]))
+        with self.assertRaises(AccessError):
+            signer.with_user(self.bob).read(['name'])
+        with self.assertRaises(AccessError):
+            item.with_user(self.bob).write({'pos_x': 0.5})
+
+    def test_cosigner_reads_but_cannot_edit(self):
+        doc, signer, item = self._make_document(self.alice, signer_email=self.bob.login)
+        self.assertEqual(signer.with_user(self.bob).read(['name'])[0]['name'], 'Ext')
+        with self.assertRaises(AccessError):
+            signer.with_user(self.bob).write({'email': 'evil@x.com'})
+        with self.assertRaises(AccessError):
+            item.with_user(self.bob).unlink()
+        with self.assertRaises(UserError):
+            doc.with_user(self.bob).action_share()
+
+    def test_token_not_readable_by_users(self):
+        doc, signer, _item = self._make_document(self.alice)
+        doc.action_send()
+        self.assertTrue(signer.sudo().access_token)
+        with self.assertRaises(AccessError):
+            signer.read(['access_token'])
+        # The sender still gets a working link through the explicit action.
+        action = doc.action_share()
+        self.assertIn(signer.sudo().access_token, action['params']['url'])
+
+    def test_signing_data_cannot_be_forged(self):
+        doc, signer, _item = self._make_document(self.alice)
+        doc.action_send()
+        with self.assertRaises(AccessError):
+            signer.write({'state': 'signed'})
+        with self.assertRaises(AccessError):
+            signer.write({'signature_image': _PNG.split(',', 1)[1]})
+        with self.assertRaises(AccessError):
+            signer.env['dosign.signer'].create({
+                'document_id': doc.id, 'name': 'X', 'email': 'x@x.com',
+                'state': 'signed'})
+        with self.assertRaises(AccessError):
+            signer.env['dosign.log'].create({'document_id': doc.id, 'action': 'signed'})
+        self.assertEqual(signer.state, 'pending')
+
+    def test_layout_frozen_after_send(self):
+        doc, signer, item = self._make_document(self.alice)
+        item.write({'pos_x': 0.3})  # draft: allowed
+        doc.action_send()
+        with self.assertRaises(UserError):
+            item.write({'pos_x': 0.6})
+        with self.assertRaises(UserError):
+            item.unlink()
+        with self.assertRaises(UserError):
+            item.env['dosign.item'].create({
+                'document_id': doc.id, 'field_type_id': self.signature_type.id,
+                'signer_id': signer.id, 'page': 1})
+        with self.assertRaises(UserError):
+            signer.unlink()
+        with self.assertRaises(UserError):
+            doc.write({'attachment_id': False})
+        # A signer who has not acted yet can still have a typo fixed.
+        signer.write({'email': 'fixed@x.com'})
+        doc._process_signature(signer, {}, signature=_PNG.split(',', 1)[1])
+        with self.assertRaises(UserError):
+            signer.write({'email': 'late@x.com'})
+
+    def test_reset_to_draft_clears_signatures(self):
+        doc, signer, item = self._make_document(self.alice)
+        second = signer.env['dosign.signer'].create({
+            'document_id': doc.id, 'name': 'Second', 'email': 'two@x.com'})
+        item.env['dosign.item'].create({
+            'document_id': doc.id, 'field_type_id': self.signature_type.id,
+            'signer_id': second.id, 'page': 1})
+        doc.action_send()
+        old_token = signer.sudo().access_token
+        doc._process_signature(signer, {}, signature=_PNG.split(',', 1)[1])
+        self.assertEqual(doc.state, 'partial')
+        doc.action_cancel()
+        doc.action_draft()
+        self.assertEqual(doc.state, 'draft')
+        self.assertEqual(signer.state, 'pending')
+        self.assertFalse(signer.signature_image)
+        self.assertFalse(signer.signed_on)
+        self.assertFalse(signer.sudo().access_token)
+        self.assertIn('reset', doc.log_ids.mapped('action'))
+        # The draft is editable again and a resend issues fresh links.
+        item.write({'pos_x': 0.4})
+        doc.action_send()
+        self.assertNotEqual(signer.sudo().access_token, old_token)

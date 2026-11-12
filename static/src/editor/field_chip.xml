@@ -6,7 +6,16 @@
              t-att-class="{ 'o_has_value': props.value, 'o_readonly': props.editable === false }"
              t-on-pointerdown="(ev) => this.onPointerDown(ev, 'move')">
             <t t-if="props.value and props.value.image">
-                <img class="o_dosign_chip_img"
+                <div t-if="props.value.frame" class="o_dosign_sigframe o_dosign_chip_frame">
+                    <span class="o_dosign_sigframe_bracket"/>
+                    <span class="o_dosign_sigframe_caption">Signed with Dosign</span>
+                    <img class="o_dosign_chip_img" alt="Signature"
+                         t-att-src="'data:image/png;base64,' + props.value.image"/>
+                    <span t-if="props.value.hash" class="o_dosign_sigframe_hash">
+                        <t t-esc="props.value.hash"/>...
+                    </span>
+                </div>
+                <img t-else="" class="o_dosign_chip_img" alt="Initials"
                      t-att-src="'data:image/png;base64,' + props.value.image"/>
             </t>
             <t t-elif="props.value and props.value.text">

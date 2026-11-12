@@ -12,7 +12,18 @@
                     </span>
                 </div>
 
-                <t t-if="already_signed">
+                <t t-if="completed">
+                    <div class="text-center py-5">
+                        <i class="fa fa-check-circle text-success" style="font-size:3rem;" role="img"
+                           aria-label="Completed" title="Completed"/>
+                        <h4 class="mt-3">This document has been signed by all parties.</h4>
+                        <a class="btn btn-primary mt-3" t-att-href="download_url">
+                            <i class="fa fa-download me-1" role="img" aria-label="Download"
+                               title="Download"/> Download signed PDF
+                        </a>
+                    </div>
+                </t>
+                <t t-elif="already_signed">
                     <div class="alert alert-success" role="alert">
                         You have already signed this document. Thank you.
                     </div>

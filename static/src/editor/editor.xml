@@ -32,6 +32,10 @@
                                 <i class="fa fa-paper-plane me-1"/> Send
                             </button>
                         </t>
+                        <button t-if="!isTemplate and state.stateValue === 'signed'"
+                                class="btn btn-primary" t-on-click="() => this.downloadSigned()">
+                            <i class="fa fa-download me-1"/> Download signed PDF
+                        </button>
                         <button t-if="isTemplate" class="btn btn-primary"
                                 t-on-click="() => this.backToList()">
                             Done

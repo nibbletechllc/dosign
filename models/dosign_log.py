@@ -20,6 +20,7 @@ class DosignLog(models.Model):
         ('resent', 'Resent'),
         ('expired', 'Expired'),
         ('cancelled', 'Cancelled'),
+        ('reset', 'Reset to Draft'),
         ('sealed', 'Sealed'),
         ('downloaded', 'Downloaded'),
     ], string='Action', required=True)

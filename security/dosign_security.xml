@@ -59,4 +59,149 @@
             </field>
         </record>
     </data>
+
+    <!-- Child records follow the visibility of their document. Without these,
+         any Dosign user could read (and alter) the signers, fields and audit
+         trail of documents they have no access to. -->
+    <data noupdate="1">
+        <!-- ===== Signers ===== -->
+        <record id="rule_dosign_signer_user_read" model="ir.rule">
+            <field name="name">Dosign Signer: read on own documents</field>
+            <field name="model_id" ref="model_dosign_signer"/>
+            <field name="domain_force">
+                ['|', ('document_id.user_id', '=', user.id),
+                      ('document_id.signer_ids.email', '=', user.login)]
+            </field>
+            <field name="groups" eval="[(4, ref('group_dosign_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_dosign_signer_user_write" model="ir.rule">
+            <field name="name">Dosign Signer: edit on documents I sent</field>
+            <field name="model_id" ref="model_dosign_signer"/>
+            <field name="domain_force">[('document_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_dosign_user'))]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="rule_dosign_signer_manager" model="ir.rule">
+            <field name="name">Dosign Signer: all signers</field>
+            <field name="model_id" ref="model_dosign_signer"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_dosign_manager'))]"/>
+        </record>
+        <record id="rule_dosign_signer_company" model="ir.rule">
+            <field name="name">Dosign Signer: multi-company</field>
+            <field name="model_id" ref="model_dosign_signer"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('document_id.company_id', '=', False),
+                      ('document_id.company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <!-- ===== Placed fields (document or template) ===== -->
+        <record id="rule_dosign_item_user_read" model="ir.rule">
+            <field name="name">Dosign Field: read on templates and own documents</field>
+            <field name="model_id" ref="model_dosign_item"/>
+            <field name="domain_force">
+                ['|', '|', ('template_id', '!=', False),
+                           ('document_id.user_id', '=', user.id),
+                           ('document_id.signer_ids.email', '=', user.login)]
+            </field>
+            <field name="groups" eval="[(4, ref('group_dosign_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_dosign_item_user_write" model="ir.rule">
+            <field name="name">Dosign Field: edit on documents I sent</field>
+            <field name="model_id" ref="model_dosign_item"/>
+            <field name="domain_force">[('document_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_dosign_user'))]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="rule_dosign_item_manager" model="ir.rule">
+            <field name="name">Dosign Field: all fields</field>
+            <field name="model_id" ref="model_dosign_item"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_dosign_manager'))]"/>
+        </record>
+        <record id="rule_dosign_item_company" model="ir.rule">
+            <field name="name">Dosign Field: multi-company</field>
+            <field name="model_id" ref="model_dosign_item"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', '|', ('document_id', '=', False),
+                           ('document_id.company_id', '=', False),
+                           ('document_id.company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <!-- ===== Field options ===== -->
+        <record id="rule_dosign_item_option_user_read" model="ir.rule">
+            <field name="name">Dosign Field Option: read on templates and own documents</field>
+            <field name="model_id" ref="model_dosign_item_option"/>
+            <field name="domain_force">
+                ['|', '|', ('item_id.template_id', '!=', False),
+                           ('item_id.document_id.user_id', '=', user.id),
+                           ('item_id.document_id.signer_ids.email', '=', user.login)]
+            </field>
+            <field name="groups" eval="[(4, ref('group_dosign_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_dosign_item_option_user_write" model="ir.rule">
+            <field name="name">Dosign Field Option: edit on documents I sent</field>
+            <field name="model_id" ref="model_dosign_item_option"/>
+            <field name="domain_force">[('item_id.document_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_dosign_user'))]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="rule_dosign_item_option_manager" model="ir.rule">
+            <field name="name">Dosign Field Option: all options</field>
+            <field name="model_id" ref="model_dosign_item_option"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_dosign_manager'))]"/>
+        </record>
+
+        <!-- ===== Audit trail ===== -->
+        <record id="rule_dosign_log_user" model="ir.rule">
+            <field name="name">Dosign Log: own documents</field>
+            <field name="model_id" ref="model_dosign_log"/>
+            <field name="domain_force">
+                ['|', ('document_id.user_id', '=', user.id),
+                      ('document_id.signer_ids.email', '=', user.login)]
+            </field>
+            <field name="groups" eval="[(4, ref('group_dosign_user'))]"/>
+        </record>
+        <record id="rule_dosign_log_manager" model="ir.rule">
+            <field name="name">Dosign Log: all entries</field>
+            <field name="model_id" ref="model_dosign_log"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_dosign_manager'))]"/>
+        </record>
+        <record id="rule_dosign_log_company" model="ir.rule">
+            <field name="name">Dosign Log: multi-company</field>
+            <field name="model_id" ref="model_dosign_log"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('document_id.company_id', '=', False),
+                      ('document_id.company_id', 'in', company_ids)]
+            </field>
+        </record>
+    </data>
 </odoo>

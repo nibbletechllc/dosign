@@ -80,7 +80,7 @@ export class DosignEditor extends Component {
         const participantFields = this.isTemplate
             ? ["name", "color", "sequence"]
             : ["name", "email", "color", "sequence", "state", "partner_id",
-               "signature_image", "initials_image"];
+               "signature_image", "initials_image", "frame_hash"];
         this.state.signers = await this.orm.searchRead(
             this.participantModel, [[this.ownerField, "=", this.recordId]], participantFields);
         this.state.items = await this.orm.searchRead(
@@ -266,6 +266,14 @@ export class DosignEditor extends Component {
     async signNow() {
         const action = await this.orm.call(
             "dosign.document", "action_sign_now", [[this.recordId]]);
+        if (action) {
+            this.actionService.doAction(action);
+        }
+    }
+
+    async downloadSigned() {
+        const action = await this.orm.call(
+            "dosign.document", "action_download_signed", [[this.recordId]]);
         if (action) {
             this.actionService.doAction(action);
         }

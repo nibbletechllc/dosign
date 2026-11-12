@@ -5,6 +5,61 @@ import { registry } from "@web/core/registry";
 import { loadPDFJSAssets } from "@web/core/utils/pdfjs";
 import { SignaturePad } from "@dosign/portal/signature_pad";
 
+const TRIM_PADDING = 4;
+const TRIM_ALPHA_THRESHOLD = 8;
+
+/**
+ * Crop the empty (transparent) margins around a drawn signature so the image
+ * is just the ink. The pad returns a fixed-size canvas; without this the
+ * signature looks small inside its field and its frame floats away from it.
+ * Opaque images (an uploaded photo) and failures are returned untouched.
+ */
+function trimTransparentMargins(dataUrl) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onerror = () => resolve(dataUrl);
+        img.onload = () => {
+            try {
+                const width = img.naturalWidth;
+                const height = img.naturalHeight;
+                const canvas = document.createElement("canvas");
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+                const { data } = ctx.getImageData(0, 0, width, height);
+                let top = height, left = width, right = -1, bottom = -1;
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        if (data[(y * width + x) * 4 + 3] > TRIM_ALPHA_THRESHOLD) {
+                            if (x < left) { left = x; }
+                            if (x > right) { right = x; }
+                            if (y < top) { top = y; }
+                            if (y > bottom) { bottom = y; }
+                        }
+                    }
+                }
+                if (right < 0) {
+                    return resolve(dataUrl);
+                }
+                left = Math.max(0, left - TRIM_PADDING);
+                top = Math.max(0, top - TRIM_PADDING);
+                right = Math.min(width - 1, right + TRIM_PADDING);
+                bottom = Math.min(height - 1, bottom + TRIM_PADDING);
+                const out = document.createElement("canvas");
+                out.width = right - left + 1;
+                out.height = bottom - top + 1;
+                out.getContext("2d").drawImage(
+                    canvas, left, top, out.width, out.height, 0, 0, out.width, out.height);
+                resolve(out.toDataURL("image/png"));
+            } catch {
+                resolve(dataUrl);
+            }
+        };
+        img.src = dataUrl;
+    });
+}
+
 export class DosignSignPortal extends Component {
     static template = "dosign.SignPortal";
     static components = { SignaturePad };
@@ -22,6 +77,8 @@ export class DosignSignPortal extends Component {
             padFor: null,
             submitting: false,
             done: false,
+            declined: false,
+            downloadUrl: null,
             error: null,
         });
         for (const item of this.data.items) {
@@ -86,6 +143,10 @@ export class DosignSignPortal extends Component {
         return item.type === "signature" || item.type === "initials";
     }
 
+    isFilled(item) {
+        return this.isSignature(item) ? !!this.imageFor(item) : !!this.state.values[item.id];
+    }
+
     imageFor(item) {
         if (item.type === "signature") {
             return this.state.signature;
@@ -102,13 +163,15 @@ export class DosignSignPortal extends Component {
         this.state.padFor = kind;
     }
 
-    onPadConfirm(dataUrl) {
-        if (this.state.padFor === "initials") {
-            this.state.initials = dataUrl;
-        } else {
-            this.state.signature = dataUrl;
-        }
+    async onPadConfirm(dataUrl) {
+        const kind = this.state.padFor;
         this.state.padFor = null;
+        const image = await trimTransparentMargins(dataUrl);
+        if (kind === "initials") {
+            this.state.initials = image;
+        } else {
+            this.state.signature = image;
+        }
     }
 
     onPadCancel() {
@@ -165,6 +228,7 @@ export class DosignSignPortal extends Component {
             if (!res.ok || json.error) {
                 throw new Error(json.error || "Submission failed.");
             }
+            this.state.downloadUrl = json.completed ? json.download_url : null;
             this.state.done = true;
         } catch (error) {
             this.state.error = error.message;

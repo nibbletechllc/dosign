@@ -16,5 +16,5 @@ access_dosign_field_type_manager,dosign.field.type.manager,model_dosign_field_ty
 access_dosign_tag_user,dosign.tag.user,model_dosign_tag,group_dosign_user,1,1,1,0
 access_dosign_tag_manager,dosign.tag.manager,model_dosign_tag,group_dosign_manager,1,1,1,1
 access_dosign_certificate_manager,dosign.certificate.manager,model_dosign_certificate,group_dosign_manager,1,1,1,1
-access_dosign_log_user,dosign.log.user,model_dosign_log,group_dosign_user,1,0,1,0
-access_dosign_log_manager,dosign.log.manager,model_dosign_log,group_dosign_manager,1,0,1,0
+access_dosign_log_user,dosign.log.user,model_dosign_log,group_dosign_user,1,0,0,0
+access_dosign_log_manager,dosign.log.manager,model_dosign_log,group_dosign_manager,1,0,0,0

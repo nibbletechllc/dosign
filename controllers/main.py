@@ -1,5 +1,5 @@
 from odoo import http
-from odoo.http import request
+from odoo.http import content_disposition, request
 
 MAX_PDF_SIZE = 25 * 1024 * 1024  # 25 MB (TDD 5.1)
 
@@ -24,6 +24,24 @@ class DosignEditorController(http.Controller):
             ('Content-Disposition', 'inline; filename="%s.pdf"' % (document.name or 'document')),
         ]
         return request.make_response(content, headers)
+
+    @http.route('/dosign/document/<int:doc_id>/signed_pdf', type='http', auth='user')
+    def document_signed_pdf(self, doc_id, **kw):
+        """Download the completed (flattened + sealed) PDF."""
+        document = request.env['dosign.document'].browse(doc_id).exists()
+        if not document:
+            return request.not_found()
+        document.check_access('read')
+        attachment = document.completed_attachment_id.sudo()
+        if not attachment or not attachment.raw:
+            return request.not_found()
+        document._log_event('downloaded')
+        return request.make_response(attachment.raw, [
+            ('Content-Type', 'application/pdf'),
+            ('Content-Length', str(len(attachment.raw))),
+            ('Content-Disposition', content_disposition(
+                '%s (signed).pdf' % (document.name or 'document'))),
+        ])
 
     @http.route('/dosign/template/<int:template_id>/pdf', type='http', auth='user')
     def template_pdf(self, template_id, **kw):

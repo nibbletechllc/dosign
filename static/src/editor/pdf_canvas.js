@@ -103,7 +103,7 @@ export class DosignPdfCanvas extends Component {
         const type = ft ? ft.item_type : null;
         const signer = this.signerOf(item);
         if (type === "signature" && signer && signer.signature_image) {
-            return { image: signer.signature_image };
+            return { image: signer.signature_image, frame: true, hash: signer.frame_hash };
         }
         if (type === "initials" && signer && signer.initials_image) {
             return { image: signer.initials_image };

@@ -3,7 +3,7 @@ import hmac
 import json
 
 from odoo import http, fields
-from odoo.http import request
+from odoo.http import content_disposition, request
 
 
 class DosignPortal(http.Controller):
@@ -11,17 +11,23 @@ class DosignPortal(http.Controller):
 
     # --- Token validation ----------------------------------------------
 
-    def _get_signer(self, doc_id, token):
-        """Return the signer for (doc, token) or None. All access via sudo
-        only after the token is validated with a constant-time compare."""
+    def _find_signer(self, doc_id, token):
+        """Return the signer holding this token for the document, whatever the
+        document state, or None. All access via sudo only after the token is
+        validated with a constant-time compare."""
         if not token:
             return None
         signer = request.env['dosign.signer'].sudo().search([
             ('document_id', '=', int(doc_id)),
             ('access_token', '!=', False),
         ])
-        signer = signer.filtered(
-            lambda s: hmac.compare_digest(s.access_token, token))[:1]
+        return signer.filtered(
+            lambda s: hmac.compare_digest(s.access_token, token))[:1] or None
+
+    def _get_signer(self, doc_id, token):
+        """Return the signer for (doc, token) if the document can still be
+        signed, else None."""
+        signer = self._find_signer(doc_id, token)
         if not signer:
             return None
         document = signer.document_id
@@ -38,6 +44,7 @@ class DosignPortal(http.Controller):
             'document_id': document.id,
             'document_name': document.name,
             'signer_name': signer.name,
+            'frame_hash': signer.frame_hash or '',
             'token': signer.access_token,
             'pdf_url': '/sign/%s/%s/pdf' % (document.id, signer.access_token),
             'submit_url': '/sign/%s/%s/submit' % (document.id, signer.access_token),
@@ -64,6 +71,15 @@ class DosignPortal(http.Controller):
     def sign_page(self, doc_id, token, **kw):
         signer = self._get_signer(doc_id, token)
         if not signer:
+            # Once everyone has signed, the same link serves the final PDF.
+            done = self._find_signer(doc_id, token)
+            if done and done.document_id.state == 'signed':
+                return request.render('dosign.portal_sign', {
+                    'document_name': done.document_id.name,
+                    'signer': done,
+                    'completed': True,
+                    'download_url': self._download_url(done),
+                })
             return request.not_found()
         if signer.state == 'pending':
             signer.sudo().state = 'viewed'
@@ -126,7 +142,12 @@ class DosignPortal(http.Controller):
         signer.document_id.sudo()._process_signature(
             signer, item_values, signature=signature,
             initials=initials, metadata=metadata)
-        return request.make_json_response({'success': True})
+        completed = signer.document_id.state == 'signed'
+        return request.make_json_response({
+            'success': True,
+            'completed': completed,
+            'download_url': self._download_url(signer) if completed else False,
+        })
 
     @http.route('/sign/<int:doc_id>/<token>/decline', type='http',
                 auth='public', methods=['POST'], csrf=False)
@@ -140,21 +161,25 @@ class DosignPortal(http.Controller):
 
     @http.route('/sign/<int:doc_id>/<token>/download', type='http', auth='public')
     def sign_download(self, doc_id, token, **kw):
-        signer = request.env['dosign.signer'].sudo().search([
-            ('document_id', '=', int(doc_id)), ('access_token', '=', token)], limit=1)
+        signer = self._find_signer(doc_id, token)
         if not signer or signer.document_id.state != 'signed':
             return request.not_found()
-        attachment = (signer.document_id.completed_attachment_id
-                      or signer.document_id.attachment_id).sudo()
+        document = signer.document_id
+        attachment = document.completed_attachment_id.sudo()
         if not attachment or not attachment.raw:
             return request.not_found()
+        document._log_event('downloaded', signer=signer)
         return request.make_response(attachment.raw, [
             ('Content-Type', 'application/pdf'),
-            ('Content-Disposition',
-             'attachment; filename="%s.pdf"' % (signer.document_id.name or 'document')),
+            ('Content-Length', str(len(attachment.raw))),
+            ('Content-Disposition', content_disposition(
+                '%s (signed).pdf' % (document.name or 'document'))),
         ])
 
     # --- Helpers --------------------------------------------------------
+
+    def _download_url(self, signer):
+        return '/sign/%s/%s/download' % (signer.document_id.id, signer.access_token)
 
     def _strip_data_url(self, value):
         if value and ',' in value and value.startswith('data:'):
