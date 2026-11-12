@@ -33,12 +33,14 @@ export class DosignFieldChip extends Component {
         const i = this.props.item;
         const color = this.props.color;
         const filled = !!this.props.value;
-        const bg = filled ? "#ffffff" : `${color}22`;
+        // A captured value reads as part of the document: no box around it.
+        const bg = filled ? "transparent" : `${color}22`;
+        const border = filled ? "transparent" : color;
         const cursor = this.props.editable === false ? "default" : "move";
         const fontPx = this.props.pageH ? Math.max(9, i.height * this.props.pageH * 0.55) : 11;
         return `left:${i.pos_x * 100}%;top:${i.pos_y * 100}%;` +
             `width:${i.width * 100}%;height:${i.height * 100}%;` +
-            `border-color:${color};background-color:${bg};` +
+            `border-color:${border};background-color:${bg};` +
             `color:${color};cursor:${cursor};font-size:${fontPx}px;`;
     }
 

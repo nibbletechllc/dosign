@@ -80,7 +80,7 @@ export class DosignEditor extends Component {
         const participantFields = this.isTemplate
             ? ["name", "color", "sequence"]
             : ["name", "email", "color", "sequence", "state", "partner_id",
-               "signature_image", "initials_image"];
+               "signature_image", "initials_image", "frame_hash"];
         this.state.signers = await this.orm.searchRead(
             this.participantModel, [[this.ownerField, "=", this.recordId]], participantFields);
         this.state.items = await this.orm.searchRead(

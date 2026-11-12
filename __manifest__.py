@@ -40,11 +40,13 @@ field-type catalog and menus.
     ],
     'assets': {
         'web.assets_backend': [
+            'dosign/static/src/common/**/*',
             'dosign/static/src/editor/**/*',
             'dosign/static/src/upload/**/*',
             'dosign/static/src/views/**/*',
         ],
         'web.assets_frontend': [
+            'dosign/static/src/common/**/*',
             'dosign/static/src/portal/**/*',
         ],
     },

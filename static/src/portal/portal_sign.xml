@@ -28,11 +28,24 @@
                         <canvas t-att-data-page="pg.number"/>
                         <t t-foreach="itemsForPage(pg.number)" t-as="item" t-key="item.id">
                             <div class="o_dosign_field" t-att-style="chipStyle(item, pg)"
-                                 t-att-class="{ 'o_required': item.required, 'o_signature': isSignature(item) and imageFor(item) }">
+                                 t-att-class="{ 'o_required': item.required, 'o_filled': isFilled(item), 'o_signature': isSignature(item) and imageFor(item) }">
                                 <!-- Signature / initials -->
                                 <t t-if="item.type === 'signature' or item.type === 'initials'">
                                     <t t-if="imageFor(item)">
-                                        <img class="o_dosign_field_img" t-att-src="imageFor(item)"/>
+                                        <!-- Click again to change the adopted signature. -->
+                                        <div t-if="item.type === 'signature'" class="o_dosign_sigframe"
+                                             title="Change signature"
+                                             t-on-click="() => this.openPad(item.type)">
+                                            <span class="o_dosign_sigframe_bracket"/>
+                                            <span class="o_dosign_sigframe_caption">Signed with Dosign</span>
+                                            <img class="o_dosign_field_img" t-att-src="imageFor(item)" alt="Signature"/>
+                                            <span t-if="data.frame_hash" class="o_dosign_sigframe_hash">
+                                                <t t-esc="data.frame_hash"/>...
+                                            </span>
+                                        </div>
+                                        <img t-else="" class="o_dosign_field_img" t-att-src="imageFor(item)"
+                                             alt="Initials" title="Change initials"
+                                             t-on-click="() => this.openPad(item.type)"/>
                                     </t>
                                     <button t-else="" class="o_dosign_field_btn"
                                             t-on-click="() => this.openPad(item.type)">

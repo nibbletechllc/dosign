@@ -142,7 +142,16 @@
     overflow: hidden;
     box-sizing: border-box;
 
-    &.o_has_value { border-style: solid; }
+    // Captured values are shown as they will print: no box, frame may overflow.
+    &.o_has_value { overflow: visible; }
+    // Same placement as the portal and the final PDF: the signature fills the
+    // field width and sits on its bottom edge, growing upward if needed.
+    &.o_has_value:has(.o_dosign_chip_frame) { align-items: flex-end; }
+    .o_dosign_chip_frame .o_dosign_chip_img {
+        width: 100%;
+        height: auto;
+        max-height: none;
+    }
 
     .o_dosign_chip_label {
         pointer-events: none;
@@ -160,7 +169,7 @@
         padding: 0 3px;
         color: #1a1a1a;
         width: 100%;
-        text-align: center;
+        text-align: left;
     }
     .o_dosign_chip_img {
         max-width: 100%;

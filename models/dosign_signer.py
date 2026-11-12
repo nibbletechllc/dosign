@@ -1,3 +1,4 @@
+import hashlib
 import secrets
 
 from odoo import models, fields, api, _
@@ -52,6 +53,19 @@ class DosignSigner(models.Model):
 
     reminder_count = fields.Integer(string='Reminders Sent', default=0, copy=False)
     last_reminder = fields.Datetime(string='Last Reminder', copy=False)
+
+    # Short public identifier printed in the signature frame. Derived from the
+    # (secret) token with a one-way hash, so it is stable for a signing round
+    # and reveals nothing usable.
+    frame_hash = fields.Char(
+        string='Signature ID', compute='_compute_frame_hash', compute_sudo=True)
+
+    @api.depends('access_token')
+    def _compute_frame_hash(self):
+        for signer in self:
+            token = signer.access_token
+            signer.frame_hash = (
+                hashlib.sha256(token.encode()).hexdigest()[:10] if token else False)
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):

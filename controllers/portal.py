@@ -38,6 +38,7 @@ class DosignPortal(http.Controller):
             'document_id': document.id,
             'document_name': document.name,
             'signer_name': signer.name,
+            'frame_hash': signer.frame_hash or '',
             'token': signer.access_token,
             'pdf_url': '/sign/%s/%s/pdf' % (document.id, signer.access_token),
             'submit_url': '/sign/%s/%s/submit' % (document.id, signer.access_token),

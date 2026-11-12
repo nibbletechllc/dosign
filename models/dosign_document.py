@@ -398,9 +398,11 @@ class DosignDocument(models.Model):
         for item in self.item_ids:
             signer = item.signer_id
             image = None
+            frame_hash = None
             kind = item.field_type_id.item_type
             if kind == 'signature' and signer.signature_image:
                 image = base64.b64decode(signer.signature_image)
+                frame_hash = signer.frame_hash or ''
             elif kind == 'initials' and signer.initials_image:
                 image = base64.b64decode(signer.initials_image)
             items.append({
@@ -409,6 +411,7 @@ class DosignDocument(models.Model):
                 'width': item.width, 'height': item.height,
                 'value_text': item.value_text or '',
                 'image_bytes': image,
+                'frame_hash': frame_hash,
             })
 
         final_bytes = pdf_filler.build_completed_pdf(

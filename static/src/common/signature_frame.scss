@@ -1,0 +1,43 @@
+// Signature frame shared by the signing portal and the backend viewer: a
+// rounded bracket on the left with a caption above and the signature id below
+// (the same frame is stamped on the final PDF by services/pdf_filler.py).
+.o_dosign_sigframe {
+    --o-dosign-frame-color: #5fa8a6;
+    position: relative;
+    width: 100%;
+    line-height: 0;
+
+    .o_dosign_sigframe_bracket {
+        position: absolute;
+        left: -4px;
+        top: -3px;
+        bottom: -3px;
+        width: 18%;
+        border: 1.5px solid var(--o-dosign-frame-color);
+        border-right: none;
+        border-radius: 8px 0 0 8px;
+        pointer-events: none;
+    }
+
+    .o_dosign_sigframe_caption,
+    .o_dosign_sigframe_hash {
+        position: absolute;
+        left: 20%;
+        // unquote(): keep Sass from evaluating max() with mixed units.
+        font-size: unquote("max(8px, .26em)");
+        line-height: 1;
+        color: var(--o-dosign-frame-color);
+        white-space: nowrap;
+        pointer-events: none;
+    }
+    .o_dosign_sigframe_caption {
+        top: -3px;
+        transform: translateY(-50%);
+    }
+    .o_dosign_sigframe_hash {
+        bottom: -3px;
+        transform: translateY(50%);
+        font-family: monospace;
+        letter-spacing: .04em;
+    }
+}
