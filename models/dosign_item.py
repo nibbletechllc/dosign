@@ -1,5 +1,5 @@
-from odoo import models, fields, api
-from odoo.exceptions import ValidationError
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError, ValidationError
 
 
 class DosignItem(models.Model):
@@ -34,6 +34,32 @@ class DosignItem(models.Model):
     option_ids = fields.One2many('dosign.item.option', 'item_id', string='Options')
     value_text = fields.Text(string='Value', copy=False)
 
+    # --- Integrity guards ----------------------------------------------
+    # The layout of a document is frozen once it leaves draft: signers must
+    # sign exactly what was sent. Only the signing flow (sudo) writes values.
+
+    def _check_document_editable(self, documents):
+        if not self.env.su and any(doc.state != 'draft' for doc in documents):
+            raise UserError(_(
+                'Fields can only be changed while the document is a draft.'))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        self._check_document_editable(self.env['dosign.document'].browse(
+            [vals['document_id'] for vals in vals_list if vals.get('document_id')]))
+        return super().create(vals_list)
+
+    def write(self, vals):
+        documents = self.document_id
+        if vals.get('document_id'):
+            documents |= self.env['dosign.document'].browse(vals['document_id'])
+        self._check_document_editable(documents)
+        return super().write(vals)
+
+    def unlink(self):
+        self._check_document_editable(self.document_id)
+        return super().unlink()
+
     @api.constrains('document_id', 'template_id')
     def _check_owner(self):
         for item in self:
@@ -57,3 +83,21 @@ class DosignItemOption(models.Model):
         'dosign.item', string='Field', required=True, ondelete='cascade')
     name = fields.Char(string='Label', required=True)
     sequence = fields.Integer(string='Sequence', default=10)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        items = self.env['dosign.item'].browse(
+            [vals['item_id'] for vals in vals_list if vals.get('item_id')])
+        items._check_document_editable(items.document_id)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        items = self.item_id
+        if vals.get('item_id'):
+            items |= self.env['dosign.item'].browse(vals['item_id'])
+        items._check_document_editable(items.document_id)
+        return super().write(vals)
+
+    def unlink(self):
+        self.item_id._check_document_editable(self.item_id.document_id)
+        return super().unlink()
