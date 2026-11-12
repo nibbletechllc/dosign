@@ -238,6 +238,17 @@ class DosignDocument(models.Model):
             'params': {'url': signer._portal_sign_url()},
         }
 
+    def action_download_signed(self):
+        """Download the completed PDF (available once every signer has signed)."""
+        self.ensure_one()
+        if not self.completed_attachment_id:
+            raise UserError(_('The signed PDF is available once all signers have signed.'))
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/dosign/document/%s/signed_pdf' % self.id,
+            'target': 'download',
+        }
+
     def action_resend(self):
         for doc in self:
             if doc.state not in ('sent', 'partial', 'expired'):

@@ -271,6 +271,14 @@ export class DosignEditor extends Component {
         }
     }
 
+    async downloadSigned() {
+        const action = await this.orm.call(
+            "dosign.document", "action_download_signed", [[this.recordId]]);
+        if (action) {
+            this.actionService.doAction(action);
+        }
+    }
+
     async saveAsTemplate() {
         const name = window.prompt(_t("Template name:"), `${this.state.name} ${_t("Template")}`);
         if (!name) {

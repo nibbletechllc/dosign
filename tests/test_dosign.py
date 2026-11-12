@@ -74,6 +74,13 @@ class TestDosign(TransactionCase):
         self.assertEqual(signer.state, 'signed')
         self.assertTrue(doc.completed_attachment_id)
         self.assertTrue(doc.sha256_final)
+        action = doc.action_download_signed()
+        self.assertEqual(action['url'], '/dosign/document/%s/signed_pdf' % doc.id)
+
+    def test_download_requires_completed_document(self):
+        doc = self._make_document()
+        with self.assertRaises(UserError):
+            doc.action_download_signed()
 
     def test_log_is_append_only(self):
         doc = self._make_document()

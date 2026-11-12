@@ -77,6 +77,8 @@ export class DosignSignPortal extends Component {
             padFor: null,
             submitting: false,
             done: false,
+            declined: false,
+            downloadUrl: null,
             error: null,
         });
         for (const item of this.data.items) {
@@ -226,6 +228,7 @@ export class DosignSignPortal extends Component {
             if (!res.ok || json.error) {
                 throw new Error(json.error || "Submission failed.");
             }
+            this.state.downloadUrl = json.completed ? json.download_url : null;
             this.state.done = true;
         } catch (error) {
             this.state.error = error.message;
