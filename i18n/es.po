@@ -1,8 +1,10 @@
 # Translation of Dosign (es).
 msgid ""
 msgstr ""
-"Project-Id-Version: dosign 19.0.1.0.0\n"
+"Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-20 05:03+0000\n"
+"PO-Revision-Date: 2026-11-20 05:03+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -12,127 +14,2180 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: dosign
-#: code:addons/dosign/models/res_partner.py:0
-#: model_terms:ir.ui.view,arch_db:dosign.view_partner_form_dosign
-msgid "Documents"
-msgstr "Documentos"
+#. odoo-python
+#: code:addons/dosign/models/dosign_template.py:0
+msgid "%s (copy)"
+msgstr ""
 
-msgid "Templates"
-msgstr "Plantillas"
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "%s Template"
+msgstr ""
 
-msgid "Reports"
-msgstr "Informes"
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/send_dialog.xml:0
+msgid "(optional)"
+msgstr ""
 
+#. module: dosign
+#: model:mail.template,body_html:dosign.mail_template_dosign_expired
+msgid ""
+"<div style=\"margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a;\">\n"
+"                    <p>\n"
+"                        <strong t-out=\"object.name or ''\"/> expired before all signatures\n"
+"                        were collected.\n"
+"                    </p>\n"
+"                    <p>You can resend it (\"Send again\") to restart the signing process.</p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,body_html:dosign.mail_template_dosign_completed
+msgid ""
+"<div style=\"margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a;\">\n"
+"                    <p>\n"
+"                        <strong t-out=\"object.name or ''\"/> has been signed by all parties.\n"
+"                    </p>\n"
+"                    <p style=\"color:#888;font-size:13px;\">\n"
+"                        Reference: <t t-out=\"object.reference or ''\"/>\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,body_html:dosign.mail_template_dosign_cert_alert
+msgid ""
+"<div style=\"margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a;\">\n"
+"                    <p>\n"
+"                        The signing certificate <strong t-out=\"object.name or ''\"/> is\n"
+"                        <t t-out=\"object.state == 'expired' and 'expired' or 'expiring soon'\"/>.\n"
+"                    </p>\n"
+"                    <p t-if=\"object.valid_to\" style=\"color:#888;font-size:13px;\">\n"
+"                        Valid until <t t-out=\"object.valid_to\" t-options=\"{&quot;widget&quot;: &quot;date&quot;}\"/>.\n"
+"                        Upload a replacement under Dosign &gt; Configuration &gt; Certificates.\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,body_html:dosign.mail_template_dosign_request
+msgid ""
+"<div style=\"margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a;\">\n"
+"                    <p>Hello <t t-out=\"object.name or ''\"/>,</p>\n"
+"                    <p>\n"
+"                        <t t-out=\"object.document_id.user_id.name or 'A colleague'\"/>\n"
+"                        has requested your signature on\n"
+"                        <strong t-out=\"object.document_id.name or ''\"/>.\n"
+"                    </p>\n"
+"                    <p t-if=\"object.document_id.message\">\n"
+"                        <em t-out=\"object.document_id.message\"/>\n"
+"                    </p>\n"
+"                    <p style=\"margin:24px 0;\">\n"
+"                        <a t-att-href=\"object._portal_sign_url()\" style=\"background:#714B67;color:#fff;padding:10px 22px;border-radius:6px;text-decoration:none;display:inline-block;\">\n"
+"                            Review &amp; Sign\n"
+"                        </a>\n"
+"                    </p>\n"
+"                    <p t-if=\"object.document_id.expiry_date\" style=\"color:#888;font-size:13px;\">\n"
+"                        Please sign before\n"
+"                        <t t-out=\"object.document_id.expiry_date\" t-options=\"{&quot;widget&quot;: &quot;date&quot;}\"/>.\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,body_html:dosign.mail_template_dosign_reminder
+msgid ""
+"<div style=\"margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a;\">\n"
+"                    <p>Hello <t t-out=\"object.name or ''\"/>,</p>\n"
+"                    <p>\n"
+"                        This is a friendly reminder to sign\n"
+"                        <strong t-out=\"object.document_id.name or ''\"/>.\n"
+"                    </p>\n"
+"                    <p style=\"margin:24px 0;\">\n"
+"                        <a t-att-href=\"object._portal_sign_url()\" style=\"background:#714B67;color:#fff;padding:10px 22px;border-radius:6px;text-decoration:none;display:inline-block;\">\n"
+"                            Review &amp; Sign\n"
+"                        </a>\n"
+"                    </p>\n"
+"                    <p t-if=\"object.document_id.expiry_date\" style=\"color:#888;font-size:13px;\">\n"
+"                        Expires on\n"
+"                        <t t-out=\"object.document_id.expiry_date\" t-options=\"{&quot;widget&quot;: &quot;date&quot;}\"/>.\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,body_html:dosign.mail_template_dosign_declined
+msgid ""
+"<div style=\"margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a;\">\n"
+"                    <t t-set=\"declined\" t-value=\"object.signer_ids.filtered(lambda s: s.state == 'declined')[:1]\"/>\n"
+"                    <p>\n"
+"                        <strong t-out=\"declined.name or 'A signer'\"/> declined to sign\n"
+"                        <strong t-out=\"object.name or ''\"/>.\n"
+"                    </p>\n"
+"                    <p t-if=\"declined.decline_reason\">\n"
+"                        Reason: <em t-out=\"declined.decline_reason\"/>\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.portal_sign
+msgid ""
+"<i class=\"fa fa-check-circle text-success\" style=\"font-size:3rem;\" "
+"role=\"img\" aria-label=\"Completed\" title=\"Completed\"/>"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.portal_sign
+msgid ""
+"<i class=\"fa fa-download me-1\" role=\"img\" aria-label=\"Download\" "
+"title=\"Download\"/> Download signed PDF"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.portal_my_dosign_documents
+msgid ""
+"<i class=\"fa fa-download me-1\" role=\"img\" aria-label=\"Download\" "
+"title=\"Download\"/>Download"
+msgstr ""
+"<i class=\"fa fa-download me-1\" role=\"img\" aria-label=\"Descargar\" "
+"title=\"Descargar\"/>Descargar"
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.portal_my_dosign_documents
+msgid "<i class=\"fa fa-pencil me-1\" role=\"img\" aria-label=\"Sign\" title=\"Sign\"/>Sign"
+msgstr ""
+"<i class=\"fa fa-pencil me-1\" role=\"img\" aria-label=\"Firmar\" "
+"title=\"Firmar\"/>Firmar"
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.portal_sign
+msgid "<span class=\"o_dosign_brand fw-bold me-3\">Dosign</span>"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_certificate.py:0
+msgid "A password is required for the PKCS#12 file."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__access_token
+msgid "Access Token"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_log__action
+msgid "Action"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__active
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__active
+#: model:ir.model.fields,field_description:dosign.field_dosign_tag__active
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__active
+msgid "Active"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__activity_ids
+msgid "Activities"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__activity_state
+msgid "Activity State"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__activity_type_icon
+msgid "Activity Type Icon"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_log__actor
+msgid "Actor"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/signer_panel.xml:0
+msgid "Add"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/send_dialog.xml:0
+msgid "Add a personal note to the request email"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/editor.js:0
+msgid "Add a role before placing fields."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/editor.js:0
+msgid "Add a signer before placing fields."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/field_palette.xml:0
+msgid "Add a signer to place fields."
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "Add at least one signer before sending."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/portal/signature_pad.xml:0
+msgid "Adopt & Sign"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/controllers/my_portal.py:0
+msgid "All"
+msgstr "Todos"
+
+#. module: dosign
+#: model:ir.actions.act_window,name:dosign.action_dosign_report
 msgid "Analysis"
 msgstr "Análisis"
 
-msgid "Configuration"
-msgstr "Configuración"
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/role_map_dialog.xml:0
+msgid "Assign"
+msgstr ""
 
-msgid "Certificates"
-msgstr "Certificados"
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "Attach a PDF before sending."
+msgstr ""
 
-msgid "Tags"
-msgstr "Etiquetas"
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
 
-msgid "Settings"
-msgstr "Ajustes"
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__log_ids
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_form
+msgid "Audit Trail"
+msgstr ""
 
-msgid "Signers"
-msgstr "Firmantes"
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_log.py:0
+msgid "Audit log entries cannot be deleted."
+msgstr ""
 
-msgid "Roles"
-msgstr "Roles"
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_log.py:0
+msgid "Audit log entries cannot be modified."
+msgstr ""
 
-msgid "Fields"
-msgstr "Campos"
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_field_type__item_type__auto_text
+msgid "Auto Text"
+msgstr ""
 
-msgid "Signed"
-msgstr "Firmado"
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__auto_fill
+msgid "Auto-fill Source"
+msgstr ""
 
-msgid "Expired"
-msgstr "Expirado"
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__attachment_id
+msgid "Base PDF"
+msgstr ""
 
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__item_type
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__item_type
+msgid "Behavior"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/portal/signature_pad.xml:0
+msgid ""
+"By signing, I agree that the chosen signature/initials will be a\n"
+"                        valid electronic representation of my hand-written signature/initials\n"
+"                        for all purposes when it is used on documents, including legally\n"
+"                        binding contracts."
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.res_config_settings_view_form
+msgid "Cadence and cap of reminder emails to pending signers."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/role_map_dialog.xml:0
+#: code:addons/dosign/static/src/editor/send_dialog.xml:0
+#: code:addons/dosign/static/src/portal/signature_pad.xml:0
+#: code:addons/dosign/static/src/upload/upload_modal.xml:0
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_form
+msgid "Cancel"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/controllers/my_portal.py:0
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_document__state__cancelled
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_log__action__cancelled
 msgid "Cancelled"
 msgstr "Cancelado"
 
-msgid "Draft"
-msgstr "Borrador"
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_certificate_form
+msgid "Certificate Name"
+msgstr ""
 
-msgid "To Sign"
-msgstr "Por firmar"
+#. module: dosign
+#: model:ir.actions.act_window,name:dosign.action_dosign_certificate
+#: model:ir.ui.menu,name:dosign.menu_dosign_certificates
+msgid "Certificates"
+msgstr "Certificados"
 
-msgid "Partially Signed"
-msgstr "Parcialmente firmado"
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/portal/portal_sign.xml:0
+msgid "Change initials"
+msgstr ""
 
-msgid "In Progress"
-msgstr "En progreso"
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/portal/portal_sign.xml:0
+msgid "Change signature"
+msgstr ""
 
-msgid "Send"
-msgstr "Enviar"
+#. module: dosign
+#: model:dosign.field.type,name:dosign.field_type_checkbox
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_field_type__item_type__checkbox
+msgid "Checkbox"
+msgstr ""
 
-msgid "Sign Now"
-msgstr "Firmar ahora"
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_role__color
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__color
+#: model:ir.model.fields,field_description:dosign.field_dosign_tag__color
+msgid "Color"
+msgstr ""
 
-msgid "Sign now"
-msgstr "Firmar ahora"
+#. module: dosign
+#: model:dosign.field.type,name:dosign.field_type_company
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__company_id
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__company_id
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__company_id
+msgid "Company"
+msgstr ""
 
-msgid "Share"
-msgstr "Compartir"
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/controllers/my_portal.py:0
+msgid "Completed"
+msgstr "Completado"
 
-msgid "Resend"
-msgstr "Reenviar"
+#. module: dosign
+#: model:ir.model,name:dosign.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
 
-msgid "Send again"
-msgstr "Enviar de nuevo"
+#. module: dosign
+#: model:ir.ui.menu,name:dosign.menu_dosign_config
+msgid "Configuration"
+msgstr "Configuración"
 
+#. module: dosign
+#: model:ir.model,name:dosign.model_res_partner
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__partner_id
+msgid "Contact"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_list
 msgid "Continue editing"
 msgstr "Seguir editando"
 
-msgid "Save as Template"
-msgstr "Guardar como plantilla"
+#. module: dosign
+#: model:dosign.tag,name:dosign.tag_contract
+msgid "Contract"
+msgstr ""
 
-msgid "Open editor"
-msgstr "Abrir editor"
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/views/copy_link.js:0
+msgid "Copy this signing link:"
+msgstr ""
 
-msgid "Open Editor"
-msgstr "Abrir editor"
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/upload/upload_modal.js:0
+msgid "Could not use template."
+msgstr ""
 
-msgid "Duplicate"
-msgstr "Duplicar"
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__created_label
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_log__action__created
+msgid "Created"
+msgstr ""
 
-msgid "Use"
-msgstr "Usar"
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__create_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__create_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__create_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__create_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_item_option__create_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_log__create_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_role__create_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__create_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_tag__create_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__create_uid
+msgid "Created by"
+msgstr ""
 
-msgid "Status"
-msgstr "Estado"
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__create_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__create_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__create_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__create_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_item_option__create_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_log__create_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_role__create_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__create_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_tag__create_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__create_date
+msgid "Created on"
+msgstr ""
 
-msgid "Name"
-msgstr "Nombre"
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "Cryptographic seal skipped: %s"
+msgstr ""
 
-msgid "Sent by"
-msgstr "Enviado por"
-
-msgid "Expiry Date"
-msgstr "Fecha de expiración"
-
-msgid "Message"
-msgstr "Mensaje"
-
-msgid "Signing Order"
-msgstr "Orden de firma"
-
-msgid "Signature"
-msgstr "Firma"
-
-msgid "Initials"
-msgstr "Iniciales"
-
+#. module: dosign
+#: model:dosign.field.type,name:dosign.field_type_date
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_field_type__item_type__date
+#: model_terms:ir.ui.view,arch_db:dosign.portal_my_dosign_documents
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_list
 msgid "Date"
 msgstr "Fecha"
 
 #. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.res_config_settings_view_form
+msgid "Days before a sent document expires."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_res_config_settings__dosign_reminder_interval_days
+msgid "Days between reminder emails to pending signers."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/portal/portal_sign.xml:0
+msgid "Decline"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__decline_reason
+msgid "Decline Reason"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/controllers/my_portal.py:0
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_log__action__declined
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_signer__state__declined
+msgid "Declined"
+msgstr "Rechazado"
+
+#. module: dosign
+#: model:mail.template,subject:dosign.mail_template_dosign_declined
+msgid "Declined: {{ object.name }}"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_res_config_settings__dosign_default_expiry_days
+msgid "Default Expiry (days)"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__default_height
+msgid "Default Height"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__default_width
+msgid "Default Width"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.res_config_settings_view_form
+msgid "Default expiry"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__is_default
+msgid "Default for Company"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_res_config_settings__dosign_default_expiry_days
+msgid "Default number of days before a sent document expires."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/field_chip.xml:0
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_kanban
+msgid "Delete"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__display_name
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__display_name
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__display_name
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__display_name
+#: model:ir.model.fields,field_description:dosign.field_dosign_item_option__display_name
+#: model:ir.model.fields,field_description:dosign.field_dosign_log__display_name
+#: model:ir.model.fields,field_description:dosign.field_dosign_role__display_name
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__display_name
+#: model:ir.model.fields,field_description:dosign.field_dosign_tag__display_name
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__display_name
+#: model:ir.model.fields,field_description:dosign.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:dosign.field_res_partner__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__document_id
+#: model:ir.model.fields,field_description:dosign.field_dosign_log__document_id
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__document_id
+#: model_terms:ir.ui.view,arch_db:dosign.portal_my_dosign_documents
+msgid "Document"
+msgstr "Documento"
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_form
+msgid "Document Name"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/editor.js:0
+msgid "Document sent to signers."
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/res_partner.py:0
+#: model:ir.actions.act_window,name:dosign.action_dosign_document
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__document_ids
+#: model:ir.ui.menu,name:dosign.menu_dosign_documents
+#: model_terms:ir.ui.view,arch_db:dosign.view_partner_form_dosign
+msgid "Documents"
+msgstr "Documentos"
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_graph
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_pivot
+msgid "Documents Analysis"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/editor.xml:0
+msgid "Done"
+msgstr ""
+
+#. module: dosign
+#: model:ir.module.category,name:dosign.module_category_dosign
+#: model:ir.ui.menu,name:dosign.menu_dosign_root
+#: model:res.groups.privilege,name:dosign.privilege_dosign
+#: model_terms:ir.ui.view,arch_db:dosign.res_config_settings_view_form
+msgid "Dosign"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model,name:dosign.model_dosign_log
+msgid "Dosign Audit Log"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model,name:dosign.model_dosign_document
+msgid "Dosign Document"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model,name:dosign.model_dosign_item_option
+msgid "Dosign Field Option"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model,name:dosign.model_dosign_field_type
+msgid "Dosign Field Type"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model,name:dosign.model_dosign_item
+msgid "Dosign Placed Field"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model,name:dosign.model_dosign_signer
+msgid "Dosign Signer"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model,name:dosign.model_dosign_certificate
+msgid "Dosign Signing Certificate"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model,name:dosign.model_dosign_tag
+msgid "Dosign Tag"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model,name:dosign.model_dosign_template
+msgid "Dosign Template"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model,name:dosign.model_dosign_role
+msgid "Dosign Template Signer Role"
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,subject:dosign.mail_template_dosign_cert_alert
+msgid ""
+"Dosign certificate {{ object.state == 'expired' and 'expired' or 'expiring "
+"soon' }}: {{ object.name }}"
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,name:dosign.mail_template_dosign_cert_alert
+msgid "Dosign: Certificate Alert"
+msgstr ""
+
+#. module: dosign
+#: model:ir.actions.server,name:dosign.cron_dosign_certificate_watch_ir_actions_server
+msgid "Dosign: Certificate watch"
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,name:dosign.mail_template_dosign_completed
+msgid "Dosign: Document Completed"
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,name:dosign.mail_template_dosign_declined
+msgid "Dosign: Document Declined"
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,name:dosign.mail_template_dosign_expired
+msgid "Dosign: Document Expired"
+msgstr ""
+
+#. module: dosign
+#: model:ir.actions.server,name:dosign.cron_dosign_expire_documents_ir_actions_server
+msgid "Dosign: Expire documents"
+msgstr ""
+
+#. module: dosign
+#: model:ir.actions.server,name:dosign.cron_dosign_send_reminders_ir_actions_server
+msgid "Dosign: Send reminders"
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,name:dosign.mail_template_dosign_reminder
+msgid "Dosign: Signature Reminder"
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,name:dosign.mail_template_dosign_request
+msgid "Dosign: Signature Request"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_list
+msgid "Download"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_form
+msgid "Download Signed PDF"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/editor.xml:0
+#: code:addons/dosign/static/src/portal/portal_sign.xml:0
+msgid "Download signed PDF"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_log__action__downloaded
+msgid "Downloaded"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/views/document_list.xml:0
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_document__state__draft
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_search
+msgid "Draft"
+msgstr "Borrador"
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/upload/upload_modal.xml:0
+msgid "Drag & drop a PDF here"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_field_type__item_type
+#: model:ir.model.fields,help:dosign.field_dosign_item__item_type
+msgid "Drives how the field renders and is captured in the signing portal."
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_kanban
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_list
+msgid "Duplicate"
+msgstr "Duplicar"
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_kanban
+msgid "Edit"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "Editor"
+msgstr ""
+
+#. module: dosign
+#: model:ir.module.category,description:dosign.module_category_dosign
+msgid "Electronic document signing"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/role_map_dialog.xml:0
+#: code:addons/dosign/static/src/editor/signer_panel.xml:0
+#: model:dosign.field.type,name:dosign.field_type_email
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__email
+msgid "Email"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__p12_password_enc
+msgid "Encrypted Password"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_signer__sequence
+msgid "Equal values sign in parallel; lower orders sign first."
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.res_config_settings_view_form
+msgid "Every"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "Every field must be assigned to a signer."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#. odoo-python
+#: code:addons/dosign/controllers/my_portal.py:0
+#: code:addons/dosign/static/src/views/document_list.xml:0
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_certificate__state__expired
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_document__state__expired
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_log__action__expired
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_search
+msgid "Expired"
+msgstr "Expirado"
+
+#. module: dosign
+#: model:mail.template,subject:dosign.mail_template_dosign_expired
+msgid "Expired: {{ object.name }}"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.portal_my_dosign_documents
+msgid "Expires on"
+msgstr "Vence el"
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_certificate__state__expiring_soon
+msgid "Expiring Soon"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__expiry_date
+msgid "Expiry Date"
+msgstr "Fecha de expiración"
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/send_dialog.xml:0
+msgid "Expiry date"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__is_favorite
+msgid "Favorite"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__favorite_user_ids
+msgid "Favorited By"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_item_option__item_id
+msgid "Field"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__field_type_id
+msgid "Field Type"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/field_palette.xml:0
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__item_ids
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__item_ids
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__item_count
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__item_ids
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_form
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_form
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_list
+msgid "Fields"
+msgstr "Campos"
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_item.py:0
+msgid "Fields can only be changed while the document is a draft."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__p12_filename
+msgid "File Name"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__sha256_final
+msgid "Final SHA-256"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/portal/portal_sign.xml:0
+msgid "Finish & Sign"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_field_type__icon
+msgid "Font Awesome class shown in the editor palette."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_document__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_field_type__auto_fill
+msgid ""
+"For auto_text fields: signer/partner attribute used to pre-fill the value."
+msgstr ""
+
+#. module: dosign
+#: model:dosign.tag,name:dosign.tag_hr
+msgid "HR"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__height
+msgid "Height"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_document__completion_hours
+msgid "Hours between creation and the last signature (signed documents)."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__id
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__id
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__id
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__id
+#: model:ir.model.fields,field_description:dosign.field_dosign_item_option__id
+#: model:ir.model.fields,field_description:dosign.field_dosign_log__id
+#: model:ir.model.fields,field_description:dosign.field_dosign_role__id
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__id
+#: model:ir.model.fields,field_description:dosign.field_dosign_tag__id
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__id
+#: model:ir.model.fields,field_description:dosign.field_res_config_settings__id
+#: model:ir.model.fields,field_description:dosign.field_res_partner__id
+msgid "ID"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_log__ip_address
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__ip_address
+msgid "IP Address"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__activity_exception_icon
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__icon
+msgid "Icon"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_document__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_document__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_document__message_has_error
+#: model:ir.model.fields,help:dosign.field_dosign_document__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__doc_in_progress_count
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_kanban
+msgid "In Progress"
+msgstr "En progreso"
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/views/document_list.xml:0
+msgid "In progress"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/field_chip.xml:0
+#: code:addons/dosign/static/src/portal/portal_sign.xml:0
+#: model:dosign.field.type,name:dosign.field_type_initials
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__initials_image
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_field_type__item_type__initials
+msgid "Initials"
+msgstr "Iniciales"
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_form
+msgid "Integrity"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_certificate.py:0
+msgid "Invalid PKCS#12 file or password."
+msgstr ""
+
+#. module: dosign
+#: model:dosign.tag,name:dosign.tag_invoice
+msgid "Invoice"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__issuer
+msgid "Issuer"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_item_option__name
+msgid "Label"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__last_reminder
+msgid "Last Reminder"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__write_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__write_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__write_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__write_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_item_option__write_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_log__write_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_role__write_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__write_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_tag__write_uid
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__write_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__write_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__write_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__write_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_item_option__write_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_log__write_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_role__write_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__write_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_tag__write_date
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/pdf_canvas.xml:0
+#: code:addons/dosign/static/src/portal/portal_sign.xml:0
+msgid "Loading document…"
+msgstr ""
+
+#. module: dosign
+#: model:res.groups,name:dosign.group_dosign_manager
+msgid "Manager"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_res_config_settings__dosign_reminder_max
+msgid "Max Reminders"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_res_config_settings__dosign_reminder_max
+msgid "Maximum number of reminders sent per signer."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/send_dialog.xml:0
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__message
+msgid "Message"
+msgstr "Mensaje"
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_certificate_form
+msgid "Metadata"
+msgstr ""
+
+#. module: dosign
+#: model:dosign.field.type,name:dosign.field_type_multiline
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_field_type__item_type__multiline
+msgid "Multiline"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_search
+msgid "My Documents"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_search
+msgid "My Favorites"
+msgstr ""
+
+#. module: dosign
+#: model:dosign.tag,name:dosign.tag_nda
+msgid "NDA"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#. odoo-python
+#: code:addons/dosign/controllers/my_portal.py:0
+#: code:addons/dosign/static/src/editor/role_map_dialog.xml:0
+#: model:dosign.field.type,name:dosign.field_type_name
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__name
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__name
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__name
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__name
+#: model:ir.model.fields,field_description:dosign.field_dosign_tag__name
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "New"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "New Document"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/controllers/my_portal.py:0
+msgid "Newest"
+msgstr "Más recientes"
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__activity_summary
+msgid "Next Activity Summary"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__activity_type_id
+msgid "Next Activity Type"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_certificate.py:0
+msgid "No certificate found in the PKCS#12 file."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/signer_panel.xml:0
+msgid "No signers yet."
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "No valid certificate; document flattened and hashed but not sealed."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_document__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_document__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "Only cancelled documents can be reset to draft."
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "Only sent, partially signed or expired documents can be resent."
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "Only the sender of the document can share its signing link."
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_form
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_form
+msgid "Open Editor"
+msgstr "Abrir editor"
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_list
+msgid "Open editor"
+msgstr "Abrir editor"
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_signer__partner_id
+msgid "Optional link to an existing contact; auto-matched by email."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_document__message
+msgid "Optional personal message included in the request email."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__option_ids
+msgid "Options"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__attachment_id
+msgid "Original PDF"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__sha256_original
+msgid "Original SHA-256"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__p12_file
+msgid "PKCS#12 File"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__page
+msgid "Page"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_document__signing_mode__parallel
+msgid "Parallel"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/send_dialog.xml:0
+msgid "Parallel (all at once)"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_document__signing_mode
+msgid ""
+"Parallel: all signers are notified at once. Sequential: each signer is "
+"notified after the previous one signs."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_document__state__partial
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_search
+msgid "Partially Signed"
+msgstr "Parcialmente firmado"
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__p12_password
+msgid "Password"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_log__payload_hash
+msgid "Payload SHA-256"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_signer__state__pending
+msgid "Pending"
+msgstr ""
+
+#. module: dosign
+#: model:dosign.field.type,name:dosign.field_type_phone
+msgid "Phone"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.actions.act_window,help:dosign.action_dosign_document
+msgid ""
+"Place signature and data fields, then send the document to your\n"
+"                signers for a frictionless, legally meaningful e-signature flow."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__placeholder
+msgid "Placeholder"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/upload/upload_modal.js:0
+msgid "Please select a PDF file."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__progress_label
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_list
+msgid "Progress"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_res_config_settings__dosign_tsa_url
+msgid "RFC 3161 TSA URL. When set, the PAdES seal is B-T; otherwise B-B."
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.res_config_settings_view_form
+msgid "RFC 3161 TSA URL; when set the PAdES seal is B-T, else B-B."
+msgstr ""
+
+#. module: dosign
+#: model:dosign.field.type,name:dosign.field_type_radio
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_field_type__item_type__radio
+msgid "Radio"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/send_dialog.xml:0
+msgid "Recipients"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__reference
+#: model_terms:ir.ui.view,arch_db:dosign.portal_my_dosign_documents
+msgid "Reference"
+msgstr "Referencia"
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_log__action__reminded
+msgid "Reminded"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_res_config_settings__dosign_reminder_interval_days
+msgid "Reminder Interval (days)"
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,subject:dosign.mail_template_dosign_reminder
+msgid "Reminder: please sign {{ object.document_id.name }}"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.res_config_settings_view_form
+msgid "Reminders"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__reminder_count
+msgid "Reminders Sent"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/signer_panel.xml:0
+msgid "Remove signer"
+msgstr ""
+
+#. module: dosign
+#: model:ir.ui.menu,name:dosign.menu_dosign_reports
+msgid "Reports"
+msgstr "Informes"
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__required
+msgid "Required"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_form
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_list
+msgid "Resend"
+msgstr "Reenviar"
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_log__action__resent
+msgid "Resent"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_log__action__reset
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_form
+msgid "Reset to Draft"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__activity_user_id
+msgid "Responsible User"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__role_id
+#: model:ir.model.fields,field_description:dosign.field_dosign_role__name
+msgid "Role"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/editor.js:0
+msgid "Role %s"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__role_ids
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_form
+msgid "Roles"
+msgstr "Roles"
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_role__sequence
+msgid "Roles with equal order sign in parallel; lower orders sign first."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_form
+msgid "Save as Template"
+msgstr "Guardar como plantilla"
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/editor.xml:0
+msgid "Save as template"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__certificate_id
+msgid "Seal Certificate"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_log__action__sealed
+msgid "Sealed"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.res_config_settings_view_form
+msgid "Sealing"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/signer_panel.js:0
+msgid "Searching contacts…"
+msgstr ""
+
+#. module: dosign
+#: model:dosign.field.type,name:dosign.field_type_selection
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_field_type__item_type__selection
+msgid "Selection"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/editor.xml:0
+#: code:addons/dosign/static/src/editor/send_dialog.xml:0
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_form
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_list
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_kanban
+msgid "Send"
+msgstr "Enviar"
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_list
+msgid "Send again"
+msgstr "Enviar de nuevo"
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "Send the document first to get a shareable link."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_log__action__sent
+msgid "Sent"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__user_id
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_list
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_search
+msgid "Sent by"
+msgstr "Enviado por"
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__sequence
+#: model:ir.model.fields,field_description:dosign.field_dosign_item_option__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_document__signing_mode__sequential
+msgid "Sequential"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/send_dialog.xml:0
+msgid "Sequential (in order)"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__serial
+msgid "Serial Number"
+msgstr ""
+
+#. module: dosign
+#: model:ir.actions.act_window,name:dosign.action_dosign_config_settings
+#: model:ir.ui.menu,name:dosign.menu_dosign_settings
+msgid "Settings"
+msgstr "Ajustes"
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_list
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_kanban
+msgid "Share"
+msgstr "Compartir"
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/editor.xml:0
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_form
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_kanban
+msgid "Sign Now"
+msgstr "Firmar ahora"
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_list
+msgid "Sign now"
+msgstr "Firmar ahora"
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.portal_my_home_dosign
+msgid "Sign pending documents and download signed ones"
+msgstr "Firma los documentos pendientes y descarga los firmados"
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/field_chip.xml:0
+#: code:addons/dosign/static/src/portal/portal_sign.xml:0
+#: model:dosign.field.type,name:dosign.field_type_signature
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__signature_image
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_field_type__item_type__signature
+msgid "Signature"
+msgstr "Firma"
+
+#. module: dosign
 #: model:ir.model.fields,field_description:dosign.field_res_partner__dosign_document_count
 #: model:ir.model.fields,field_description:dosign.field_res_users__dosign_document_count
+#: model_terms:ir.ui.view,arch_db:dosign.portal_breadcrumbs_dosign
+#: model_terms:ir.ui.view,arch_db:dosign.portal_my_dosign_documents
+#: model_terms:ir.ui.view,arch_db:dosign.portal_my_home_dosign
 msgid "Signature Documents"
 msgstr "Documentos de firma"
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__frame_hash
+msgid "Signature ID"
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,subject:dosign.mail_template_dosign_request
+msgid "Signature requested: {{ object.document_id.name }}"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/views/document_list.xml:0
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__signed_count
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__doc_signed_count
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_document__state__signed
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_log__action__signed
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_signer__state__signed
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_search
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_kanban
+msgid "Signed"
+msgstr "Firmado"
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__signed_on
+msgid "Signed On"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__completed_attachment_id
+msgid "Signed PDF"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "Signed or cancelled documents cannot be cancelled."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/field_chip.xml:0
+#: code:addons/dosign/static/src/portal/portal_sign.xml:0
+msgid "Signed with Dosign"
+msgstr ""
+
+#. module: dosign
+#: model:mail.template,subject:dosign.mail_template_dosign_completed
+msgid "Signed: {{ object.name }}"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__signer_id
+#: model:ir.model.fields,field_description:dosign.field_dosign_log__signer_id
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_search
+msgid "Signer"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/editor.js:0
+msgid "Signer %s"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_signer.py:0
+msgid "Signer %s can no longer be modified."
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "Signer %s has no signature field assigned."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_field_type__auto_fill__company
+msgid "Signer Company"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_field_type__auto_fill__email
+msgid "Signer Email"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_field_type__auto_fill__name
+msgid "Signer Name"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_field_type__auto_fill__phone
+msgid "Signer Phone"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__signer_count
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__signer_ids
+#: model:ir.model.fields,field_description:dosign.field_dosign_template__role_count
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_form
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_list
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_list
+msgid "Signers"
+msgstr "Firmantes"
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_signer.py:0
+msgid "Signers can only be added while the document is a draft."
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_signer.py:0
+msgid "Signers can only be removed while the document is a draft."
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.res_config_settings_view_form
+msgid "Signing"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__signing_mode
+#: model:ir.model.fields,field_description:dosign.field_dosign_role__sequence
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__sequence
+msgid "Signing Order"
+msgstr "Orden de firma"
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_signer.py:0
+msgid "Signing data cannot be modified manually (%s)."
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_signer.py:0
+msgid "Signing data cannot be set manually (%s)."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/views/copy_link.js:0
+msgid "Signing link copied to clipboard."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/send_dialog.xml:0
+msgid "Signing order"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_field_type__technical_name
+msgid "Stable identifier used by the editor palette and overlay engine."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__state
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__state
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__state
+#: model_terms:ir.ui.view,arch_db:dosign.portal_my_dosign_documents
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_search
+msgid "Status"
+msgstr "Estado"
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_document__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_certificate.py:0
+msgid "Stored certificate password could not be decrypted."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__subject
+msgid "Subject"
+msgstr ""
+
+#. module: dosign
+#: model:ir.actions.act_window,name:dosign.action_dosign_tag
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__tag_ids
+#: model:ir.ui.menu,name:dosign.menu_dosign_tags
+msgid "Tags"
+msgstr "Etiquetas"
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_field_type__technical_name
+msgid "Technical Name"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#. odoo-python
+#: code:addons/dosign/models/dosign_template.py:0
+#: code:addons/dosign/static/src/editor/editor.js:0
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__template_id
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__template_id
+#: model:ir.model.fields,field_description:dosign.field_dosign_role__template_id
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_search
+msgid "Template"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_form
+msgid "Template Name"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/editor.js:0
+msgid "Template name:"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "Template not found."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/editor.js:0
+msgid "Template saved."
+msgstr ""
+
+#. module: dosign
+#: model:ir.actions.act_window,name:dosign.action_dosign_template
+#: model:ir.ui.menu,name:dosign.menu_dosign_templates
+msgid "Templates"
+msgstr "Plantillas"
+
+#. module: dosign
+#: model:dosign.field.type,name:dosign.field_type_text
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_field_type__item_type__text
+msgid "Text"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/portal/portal_sign.xml:0
+msgid "Thank you — your signature has been recorded."
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "The PDF can only be replaced while the document is a draft."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/upload/upload_modal.js:0
+msgid "The file exceeds 25 MB."
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "The signed PDF is available once all signers have signed."
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.portal_my_dosign_documents
+msgid "There are no signature documents."
+msgstr "No hay documentos de firma."
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.portal_sign
+msgid "This document has been signed by all parties."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/role_map_dialog.xml:0
+msgid ""
+"This document was created from a template. Assign a real signer to\n"
+"                each role."
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__completion_hours
+msgid "Time to Sign (hours)"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_log__timestamp
+msgid "Timestamp"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.res_config_settings_view_form
+msgid "Timestamp Authority (TSA)"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_res_config_settings__dosign_tsa_url
+msgid "Timestamp Authority (TSA) URL"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#. odoo-python
+#: code:addons/dosign/controllers/my_portal.py:0
+#: code:addons/dosign/static/src/views/document_list.xml:0
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_document__state__sent
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_document_search
+msgid "To Sign"
+msgstr "Por firmar"
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_document__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_certificate_form
+msgid "Upload"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/views/document_list.xml:0
+#: code:addons/dosign/static/src/views/template_kanban.xml:0
+msgid "Upload PDF"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.actions.act_window,help:dosign.action_dosign_document
+msgid "Upload a PDF to start signing"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/upload/upload_modal.js:0
+msgid "Upload failed."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/upload/upload_modal.xml:0
+msgid "Uploading…"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/upload/upload_modal.xml:0
+#: model_terms:ir.ui.view,arch_db:dosign.view_dosign_template_list
+msgid "Use"
+msgstr "Usar"
+
+#. module: dosign
+#: model:res.groups,name:dosign.group_dosign_user
+msgid "User"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_log__user_agent
+#: model:ir.model.fields,field_description:dosign.field_dosign_signer__user_agent
+msgid "User Agent"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_certificate__state__valid
+msgid "Valid"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__valid_from
+msgid "Valid From"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_certificate__valid_to
+msgid "Valid To"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__value_text
+msgid "Value"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_log__action__viewed
+#: model:ir.model.fields.selection,name:dosign.selection__dosign_signer__state__viewed
+msgid "Viewed"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/controllers/my_portal.py:0
+msgid "Waiting for other signers"
+msgstr "Esperando a los demás firmantes"
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/controllers/my_portal.py:0
+msgid "Waiting for your signature"
+msgstr "Pendiente de tu firma"
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/controllers/my_portal.py:0
+msgid "Waiting for your turn"
+msgstr "Esperando tu turno"
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_document__website_message_ids
+msgid "Website Messages"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,help:dosign.field_dosign_document__website_message_ids
+msgid "Website communication history"
+msgstr ""
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_dosign_item__width
+msgid "Width"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_document.py:0
+msgid "You are not listed as a signer on this document."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/portal/portal_sign.xml:0
+msgid "You declined to sign."
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.portal_sign
+msgid "You have already signed this document. Thank you."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/portal/portal_sign.xml:0
+msgid ""
+"You will receive the signed document by email once all\n"
+"                            parties have signed."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/pdf_canvas.xml:0
+msgid "Zoom in"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/pdf_canvas.xml:0
+msgid "Zoom out"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.res_config_settings_view_form
+msgid "days"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.res_config_settings_view_form
+msgid ""
+"days,\n"
+"                            up to"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/models/dosign_certificate.py:0
+msgid "dosign_fernet_key is not configured in the Odoo server config."
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/signer_panel.xml:0
+msgid "fields"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/upload/upload_modal.xml:0
+msgid "fields ·"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.res_config_settings_view_form
+msgid "https://freetsa.org/tsr"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/upload/upload_modal.xml:0
+msgid "or click to browse · PDF up to 25 MB"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/upload/upload_modal.xml:0
+msgid "or start from a template"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/pdf_canvas.xml:0
+msgid "page(s)"
+msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/upload/upload_modal.xml:0
+msgid "signers"
+msgstr ""
+
+#. module: dosign
+#. odoo-python
+#: code:addons/dosign/controllers/my_portal.py:0
+msgid "state"
+msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.res_config_settings_view_form
+msgid "times"
+msgstr ""

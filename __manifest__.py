@@ -1,6 +1,6 @@
 {
     'name': 'Dosign',
-    'version': '19.0.1.0.2',
+    'version': '19.0.1.0.3',
     'category': 'Productivity/Sign',
     'summary': 'Electronic document signing with PAdES sealing',
     'description': """
@@ -34,6 +34,7 @@ field-type catalog and menus.
         'views/dosign_certificate_views.xml',
         'views/dosign_tag_views.xml',
         'views/dosign_portal_templates.xml',
+        'views/dosign_my_portal_templates.xml',
         'views/dosign_report_views.xml',
         'views/dosign_settings_views.xml',
         'views/res_partner_views.xml',
