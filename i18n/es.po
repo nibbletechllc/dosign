@@ -11,6 +11,9 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#. module: dosign
+#: code:addons/dosign/models/res_partner.py:0
+#: model_terms:ir.ui.view,arch_db:dosign.view_partner_form_dosign
 msgid "Documents"
 msgstr "Documentos"
 
@@ -127,3 +130,9 @@ msgstr "Iniciales"
 
 msgid "Date"
 msgstr "Fecha"
+
+#. module: dosign
+#: model:ir.model.fields,field_description:dosign.field_res_partner__dosign_document_count
+#: model:ir.model.fields,field_description:dosign.field_res_users__dosign_document_count
+msgid "Signature Documents"
+msgstr "Documentos de firma"

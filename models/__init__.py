@@ -8,3 +8,4 @@ from . import dosign_signer
 from . import dosign_item
 from . import dosign_log
 from . import res_config_settings
+from . import res_partner

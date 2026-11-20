@@ -262,3 +262,38 @@ class TestDosignAccess(TransactionCase):
         item.write({'pos_x': 0.4})
         doc.action_send()
         self.assertNotEqual(signer.sudo().access_token, old_token)
+
+
+@tagged('post_install', '-at_install')
+class TestDosignPartner(TransactionCase):
+    """Smart button on contacts: documents in which the contact signs."""
+
+    def test_partner_document_count(self):
+        Partner = self.env['res.partner']
+        company = Partner.create({'name': 'ACME', 'is_company': True})
+        contact = Partner.create({
+            'name': 'Jane', 'email': 'jane@acme.test', 'parent_id': company.id})
+        other = Partner.create({'name': 'Other', 'email': 'other@x.test'})
+        Document = self.env['dosign.document']
+        Signer = self.env['dosign.signer']
+
+        linked = Document.create({'name': 'Linked'})
+        Signer.create({'document_id': linked.id, 'partner_id': contact.id,
+                       'name': 'Jane', 'email': 'jane@acme.test'})
+        # Signer typed by hand, not linked to the contact: matched by email.
+        typed = Document.create({'name': 'Typed'})
+        Signer.create({'document_id': typed.id, 'name': 'Jane',
+                       'email': 'JANE@acme.test'})
+        unrelated = Document.create({'name': 'Unrelated'})
+        Signer.create({'document_id': unrelated.id, 'partner_id': other.id,
+                       'name': 'Other', 'email': 'other@x.test'})
+
+        self.assertEqual(contact.dosign_document_count, 2)
+        # The company sees the documents of its contacts.
+        self.assertEqual(company.dosign_document_count, 1)
+        self.assertEqual(other.dosign_document_count, 1)
+
+        action = contact.action_view_dosign_documents()
+        self.assertEqual(action['res_model'], 'dosign.document')
+        self.assertEqual(set(Document.search(action['domain']).ids),
+                         {linked.id, typed.id})
