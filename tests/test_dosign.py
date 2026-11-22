@@ -1,7 +1,7 @@
 import base64
 
 from odoo.exceptions import AccessError, UserError
-from odoo.tests.common import TransactionCase, new_test_user, tagged
+from odoo.tests.common import HttpCase, TransactionCase, new_test_user, tagged
 
 # Minimal one-page PDF (US Letter).
 _PDF = base64.b64decode(
@@ -262,3 +262,93 @@ class TestDosignAccess(TransactionCase):
         item.write({'pos_x': 0.4})
         doc.action_send()
         self.assertNotEqual(signer.sudo().access_token, old_token)
+
+
+@tagged('post_install', '-at_install')
+class TestDosignPartner(TransactionCase):
+    """Smart button on contacts: documents in which the contact signs."""
+
+    def test_partner_document_count(self):
+        Partner = self.env['res.partner']
+        company = Partner.create({'name': 'ACME', 'is_company': True})
+        contact = Partner.create({
+            'name': 'Jane', 'email': 'jane@acme.test', 'parent_id': company.id})
+        other = Partner.create({'name': 'Other', 'email': 'other@x.test'})
+        Document = self.env['dosign.document']
+        Signer = self.env['dosign.signer']
+
+        linked = Document.create({'name': 'Linked'})
+        Signer.create({'document_id': linked.id, 'partner_id': contact.id,
+                       'name': 'Jane', 'email': 'jane@acme.test'})
+        # Signer typed by hand, not linked to the contact: matched by email.
+        typed = Document.create({'name': 'Typed'})
+        Signer.create({'document_id': typed.id, 'name': 'Jane',
+                       'email': 'JANE@acme.test'})
+        unrelated = Document.create({'name': 'Unrelated'})
+        Signer.create({'document_id': unrelated.id, 'partner_id': other.id,
+                       'name': 'Other', 'email': 'other@x.test'})
+
+        self.assertEqual(contact.dosign_document_count, 2)
+        # The company sees the documents of its contacts.
+        self.assertEqual(company.dosign_document_count, 1)
+        self.assertEqual(other.dosign_document_count, 1)
+
+        action = contact.action_view_dosign_documents()
+        self.assertEqual(action['res_model'], 'dosign.document')
+        self.assertEqual(set(Document.search(action['domain']).ids),
+                         {linked.id, typed.id})
+
+
+@tagged('post_install', '-at_install')
+class TestDosignMyPortal(HttpCase):
+    """'Signature Documents' section of the customer portal (/my/dosign)."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.signature_type = cls.env.ref('dosign.field_type_signature')
+        cls.portal_user = new_test_user(
+            cls.env, login='portal_signer', email='portal@dosign.test',
+            password='portal_signer', groups='base.group_portal')
+        cls.partner = cls.portal_user.partner_id
+
+    def _sent_document(self, name, **signer_vals):
+        doc = self.env['dosign.document'].create({'name': name})
+        doc.attachment_id = self.env['ir.attachment'].create({
+            'name': 's.pdf', 'raw': _PDF, 'mimetype': 'application/pdf',
+            'res_model': 'dosign.document', 'res_id': doc.id,
+        })
+        signer = self.env['dosign.signer'].create(dict(
+            {'document_id': doc.id, 'name': 'Signer'}, **signer_vals))
+        self.env['dosign.item'].create({
+            'document_id': doc.id, 'field_type_id': self.signature_type.id,
+            'signer_id': signer.id, 'page': 1,
+            'pos_x': 0.1, 'pos_y': 0.1, 'width': 0.2, 'height': 0.06})
+        doc.action_send()
+        return doc, signer
+
+    def test_portal_lists_only_linked_documents(self):
+        mine, signer = self._sent_document(
+            'Portal Linked Doc', partner_id=self.partner.id, email=self.partner.email)
+        # Same email but not linked to the contact: must NOT be listed, since a
+        # portal user can change their own email.
+        self._sent_document('Portal Email Only Doc', email=self.partner.email)
+        draft = self.env['dosign.document'].create({'name': 'Portal Draft Doc'})
+        self.env['dosign.signer'].create({
+            'document_id': draft.id, 'partner_id': self.partner.id,
+            'name': 'Signer', 'email': self.partner.email})
+
+        self.authenticate('portal_signer', 'portal_signer')
+        response = self.url_open('/my/dosign')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Portal Linked Doc', response.text)
+        self.assertIn(signer._portal_sign_path(), response.text)
+        self.assertNotIn('Portal Email Only Doc', response.text)
+        self.assertNotIn('Portal Draft Doc', response.text)
+
+        counters = self.make_jsonrpc_request(
+            '/my/counters', {'counters': ['dosign_document_count']})
+        self.assertEqual(counters['dosign_document_count'], 1)
+
+        response = self.url_open('/my/dosign?filterby=signed')
+        self.assertNotIn('Portal Linked Doc', response.text)

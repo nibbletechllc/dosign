@@ -19,8 +19,12 @@ export class DosignListController extends ListController {
 
     async loadCounts() {
         try {
+            // Scope the counters to the action's own domain (e.g. the documents
+            // of one contact) but not to the search filters, so they keep
+            // showing every state while the user filters the list.
+            const domain = this.env.searchModel?.globalDomain || [];
             const groups = await this.orm.formattedReadGroup(
-                "dosign.document", [], ["state"], ["__count"]);
+                "dosign.document", domain, ["state"], ["__count"]);
             const data = {};
             for (const group of groups) {
                 const state = Array.isArray(group.state) ? group.state[0] : group.state;

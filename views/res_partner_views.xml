@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Smart button on the contact form: signature documents of the contact. -->
+    <record id="view_partner_form_dosign" model="ir.ui.view">
+        <field name="name">res.partner.form.dosign</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_view_dosign_documents" type="object"
+                        class="oe_stat_button" icon="fa-pencil-square-o"
+                        groups="dosign.group_dosign_user">
+                    <field name="dosign_document_count" string="Documents" widget="statinfo"/>
+                </button>
+            </div>
+        </field>
+    </record>
+</odoo>
