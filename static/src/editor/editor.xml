@@ -16,7 +16,7 @@
                     </button>
                     <input type="text" class="o_dosign_doc_name form-control"
                            t-att-value="state.name" t-att-readonly="readonly"
-                           t-on-change="onNameChange"/>
+                           t-on-input="onNameChange"/>
                     <span class="badge text-bg-secondary ms-2 text-uppercase">
                         <t t-esc="isTemplate ? 'Template' : state.stateValue"/>
                     </span>

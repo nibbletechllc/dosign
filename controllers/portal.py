@@ -37,6 +37,12 @@ class DosignPortal(http.Controller):
             return None
         return signer
 
+    def _is_signer_turn(self, signer):
+        """In sequential mode only the current rank may sign; the others hold a
+        valid link (shared or "Sign Now") but must wait for earlier signers."""
+        document = signer.document_id.sudo()
+        return signer.state == 'signed' or signer in document._current_recipients()
+
     def _signer_payload(self, signer):
         document = signer.document_id
         items = document.item_ids.filtered(lambda i: i.signer_id == signer)
@@ -81,6 +87,12 @@ class DosignPortal(http.Controller):
                     'download_url': self._download_url(done),
                 })
             return request.not_found()
+        if not self._is_signer_turn(signer):
+            return request.render('dosign.portal_sign', {
+                'document_name': signer.document_id.name,
+                'signer': signer,
+                'waiting_turn': True,
+            })
         if signer.state == 'pending':
             signer.sudo().state = 'viewed'
             signer.document_id._log_event('viewed', signer=signer)
@@ -116,6 +128,9 @@ class DosignPortal(http.Controller):
             return request.make_json_response({'error': 'Invalid link.'}, status=404)
         if signer.state == 'signed':
             return request.make_json_response({'error': 'Already signed.'}, status=400)
+        if not self._is_signer_turn(signer):
+            return request.make_json_response(
+                {'error': 'It is not your turn to sign yet.'}, status=400)
 
         try:
             data = request.get_json_data()

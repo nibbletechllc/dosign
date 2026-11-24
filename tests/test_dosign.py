@@ -1,4 +1,6 @@
 import base64
+import io
+import json
 
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import HttpCase, TransactionCase, new_test_user, tagged
@@ -352,3 +354,120 @@ class TestDosignMyPortal(HttpCase):
 
         response = self.url_open('/my/dosign?filterby=signed')
         self.assertNotIn('Portal Linked Doc', response.text)
+
+
+@tagged('post_install', '-at_install')
+class TestDosignMultiSigner(HttpCase):
+    """Several signers on one document, signing through the public routes."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.signature_type = cls.env.ref('dosign.field_type_signature')
+        cls.text_type = cls.env.ref('dosign.field_type_text')
+
+    def _document(self, signing_mode, ranks):
+        """Sent document with one signer per rank, each with a signature field
+        and a text field of its own."""
+        doc = self.env['dosign.document'].create({
+            'name': 'Multi %s' % signing_mode, 'signing_mode': signing_mode})
+        doc.attachment_id = self.env['ir.attachment'].create({
+            'name': 's.pdf', 'raw': _PDF, 'mimetype': 'application/pdf',
+            'res_model': 'dosign.document', 'res_id': doc.id,
+        })
+        signers = self.env['dosign.signer']
+        for index, rank in enumerate(ranks):
+            signer = self.env['dosign.signer'].create({
+                'document_id': doc.id, 'name': 'Signer %s' % index,
+                'email': 'signer%s@x.test' % index, 'sequence': rank})
+            for field_type, pos_x in ((self.signature_type, 0.1), (self.text_type, 0.5)):
+                self.env['dosign.item'].create({
+                    'document_id': doc.id, 'field_type_id': field_type.id,
+                    'signer_id': signer.id, 'page': 1,
+                    'pos_x': pos_x, 'pos_y': 0.1 + 0.2 * index,
+                    'width': 0.2, 'height': 0.06})
+            signers |= signer
+        doc.action_send()
+        return doc, signers
+
+    def _notified(self, doc):
+        return doc.log_ids.filtered(lambda log: log.action == 'sent').signer_id
+
+    def _submit(self, signer):
+        values = {str(item.id): 'Value of %s' % signer.name
+                  for item in signer.item_ids if item.field_type_id == self.text_type}
+        response = self.url_open(
+            '/sign/%s/%s/submit' % (signer.document_id.id, signer.sudo().access_token),
+            data=json.dumps({'values': values, 'signature': _PNG}),
+            headers={'Content-Type': 'application/json'})
+        self.env.invalidate_all()
+        return response
+
+    def _final_text(self, doc):
+        from pypdf import PdfReader
+        return PdfReader(io.BytesIO(doc.completed_attachment_id.raw)).pages[0].extract_text()
+
+    def test_parallel_signers(self):
+        doc, (first, second, third) = self._document('parallel', [10, 10, 10])
+        self.assertEqual(self._notified(doc), first | second | third)
+
+        self.assertEqual(self._submit(second).json(), {
+            'success': True, 'completed': False, 'download_url': False})
+        self.assertEqual(doc.state, 'partial')
+        self.assertEqual(second.state, 'signed')
+        # The same signer cannot sign twice.
+        self.assertEqual(self._submit(second).status_code, 400)
+
+        self.assertFalse(self._submit(first).json()['completed'])
+        result = self._submit(third).json()
+        self.assertTrue(result['completed'])
+        self.assertEqual(doc.state, 'signed')
+        self.assertEqual(doc.signed_count, 3)
+
+        # Every signer's values and signature frame are stamped on the PDF.
+        text = self._final_text(doc)
+        for signer in first | second | third:
+            self.assertIn('Value of %s' % signer.name, text)
+            self.assertIn(signer.frame_hash, text)
+        # Each signer's link now serves the completed document.
+        for signer in first | second | third:
+            page = self.url_open('/sign/%s/%s' % (doc.id, signer.sudo().access_token))
+            self.assertIn('signed by all parties', page.text)
+
+    def test_sequential_signers(self):
+        # Rank 10 first, then the two rank-20 signers in parallel.
+        doc, (first, second, third) = self._document('sequential', [10, 20, 20])
+        self.assertEqual(self._notified(doc), first)
+
+        # A later signer holding a link (e.g. shared) must wait for its turn.
+        page = self.url_open('/sign/%s/%s' % (doc.id, second.sudo().access_token))
+        self.assertIn('not your turn', page.text)
+        self.assertEqual(second.state, 'pending')
+        response = self._submit(second)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(second.state, 'pending')
+
+        self.assertFalse(self._submit(first).json()['completed'])
+        self.assertEqual(doc.state, 'partial')
+        self.assertEqual(self._notified(doc), first | second | third)
+
+        self.assertFalse(self._submit(third).json()['completed'])
+        self.assertTrue(self._submit(second).json()['completed'])
+        self.assertEqual(doc.state, 'signed')
+        text = self._final_text(doc)
+        for signer in first | second | third:
+            self.assertIn(signer.frame_hash, text)
+
+    def test_decline_by_one_signer_cancels_for_all(self):
+        doc, (first, second) = self._document('parallel', [10, 10])
+        self.assertFalse(self._submit(first).json()['completed'])
+        response = self.url_open(
+            '/sign/%s/%s/decline' % (doc.id, second.sudo().access_token),
+            data=json.dumps({'reason': 'Wrong amount'}),
+            headers={'Content-Type': 'application/json'})
+        self.assertEqual(response.status_code, 200)
+        self.env.invalidate_all()
+        self.assertEqual(second.state, 'declined')
+        self.assertEqual(doc.state, 'cancelled')
+        # The signer who already signed cannot sign or reach the form anymore.
+        self.assertEqual(self._submit(first).status_code, 404)

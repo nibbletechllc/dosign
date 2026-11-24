@@ -23,6 +23,12 @@
                         </a>
                     </div>
                 </t>
+                <t t-elif="waiting_turn">
+                    <div class="alert alert-info" role="alert">
+                        This document is signed in order and it is not your turn yet.
+                        You will receive an email when the previous signers have signed.
+                    </div>
+                </t>
                 <t t-elif="already_signed">
                     <div class="alert alert-success" role="alert">
                         You have already signed this document. Thank you.
