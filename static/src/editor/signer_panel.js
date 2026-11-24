@@ -2,9 +2,9 @@
 
 import { Component } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
-import { _t } from "@web/core/l10n/translation";
 import { AutoComplete } from "@web/core/autocomplete/autocomplete";
 import { signerColor } from "@dosign/editor/colors";
+import { partnerSources } from "@dosign/editor/partner_search";
 
 export class DosignSignerPanel extends Component {
     static template = "dosign.SignerPanel";
@@ -48,30 +48,21 @@ export class DosignSignerPanel extends Component {
     // --- Odoo contact picker -------------------------------------------
 
     partnerValue(signer) {
-        return signer.partner_id ? signer.partner_id[1] : "";
+        const partner = signer.partner_id;
+        if (Array.isArray(partner)) {
+            return partner[1];
+        }
+        // Just picked in this session: the state holds the bare id, and the
+        // signer name was set from the contact.
+        return partner ? signer.name : "";
     }
 
     partnerSources(signer) {
-        return [{
-            placeholder: _t("Searching contacts…"),
-            options: (request) => this.loadPartners(request, signer),
-        }];
-    }
-
-    async loadPartners(request, signer) {
-        const term = (request || "").trim();
-        const partners = await this.orm.searchRead(
-            "res.partner",
-            term ? ["|", ["name", "ilike", term], ["email", "ilike", term]] : [],
-            ["name", "email", "is_company"],
-            { limit: 8 });
-        return partners.map((partner) => ({
-            label: partner.email ? `${partner.name} (${partner.email})` : partner.name,
-            onSelect: () => this.props.onUpdate(signer.id, {
+        return partnerSources(this.orm, (partner) =>
+            this.props.onUpdate(signer.id, {
                 partner_id: partner.id,
                 name: partner.name || "",
                 email: partner.email || "",
-            }),
-        }));
+            }));
     }
 }

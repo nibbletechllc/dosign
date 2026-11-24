@@ -236,3 +236,17 @@
         .o_dosign_template_name { font-weight: 600; }
     }
 }
+
+// --- Template role assignment dialog ---
+.o_dosign_role_map {
+    .o_dosign_contact .o-autocomplete {
+        width: 100%;
+    }
+    .o_dosign_contact .o-autocomplete--input {
+        width: 100%;
+        font-size: .875rem;
+        padding: .25rem .5rem;
+        border: 1px solid var(--border-color, #dee2e6);
+        border-radius: .25rem;
+    }
+}

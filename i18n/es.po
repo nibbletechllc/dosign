@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 02:19+0000\n"
-"PO-Revision-Date: 2026-11-24 02:19+0000\n"
+"POT-Creation-Date: 2026-11-24 02:55+0000\n"
+"PO-Revision-Date: 2026-11-24 02:55+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -284,7 +284,13 @@ msgstr "Análisis"
 #. odoo-javascript
 #: code:addons/dosign/static/src/editor/role_map_dialog.xml:0
 msgid "Assign"
-msgstr ""
+msgstr "Asignar"
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/role_map_dialog.js:0
+msgid "Assign signers to roles"
+msgstr "Asignar firmantes a los roles"
 
 #. module: dosign
 #. odoo-python
@@ -1541,9 +1547,15 @@ msgstr ""
 
 #. module: dosign
 #. odoo-javascript
-#: code:addons/dosign/static/src/editor/signer_panel.js:0
+#: code:addons/dosign/static/src/editor/role_map_dialog.js:0
+msgid "Search a contact…"
+msgstr "Buscar un contacto…"
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/partner_search.js:0
 msgid "Searching contacts…"
-msgstr ""
+msgstr "Buscando contactos…"
 
 #. module: dosign
 #: model:dosign.field.type,name:dosign.field_type_selection
@@ -1950,8 +1962,10 @@ msgstr ""
 #: code:addons/dosign/static/src/editor/role_map_dialog.xml:0
 msgid ""
 "This document was created from a template. Assign a real signer to\n"
-"                each role."
+"                    each role: search a contact or type a name and email."
 msgstr ""
+"Este documento se creó desde una plantilla. Asigna un firmante real a cada "
+"rol: busca un contacto o escribe un nombre y un email."
 
 #. module: dosign
 #: model:ir.model.fields,field_description:dosign.field_dosign_document__completion_hours
@@ -1987,6 +2001,12 @@ msgstr "Por firmar"
 #: model:ir.model.fields,help:dosign.field_dosign_document__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr ""
+
+#. module: dosign
+#. odoo-javascript
+#: code:addons/dosign/static/src/editor/role_map_dialog.xml:0
+msgid "Unlink contact"
+msgstr "Desvincular contacto"
 
 #. module: dosign
 #: model_terms:ir.ui.view,arch_db:dosign.view_dosign_certificate_form
