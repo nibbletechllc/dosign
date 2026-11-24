@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-20 05:03+0000\n"
-"PO-Revision-Date: 2026-11-20 05:03+0000\n"
+"POT-Creation-Date: 2026-11-24 02:19+0000\n"
+"PO-Revision-Date: 2026-11-24 02:19+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -1935,6 +1935,15 @@ msgstr "No hay documentos de firma."
 #: model_terms:ir.ui.view,arch_db:dosign.portal_sign
 msgid "This document has been signed by all parties."
 msgstr ""
+
+#. module: dosign
+#: model_terms:ir.ui.view,arch_db:dosign.portal_sign
+msgid ""
+"This document is signed in order and it is not your turn yet.\n"
+"                        You will receive an email when the previous signers have signed."
+msgstr ""
+"Este documento se firma en orden y todavía no es tu turno. Recibirás un "
+"email cuando los firmantes anteriores hayan firmado."
 
 #. module: dosign
 #. odoo-javascript
