@@ -38,18 +38,21 @@
                         placeholder="'Link an Odoo contact…'"
                         resetOnSelect="false"/>
                 </div>
+                <!-- Update on every keystroke (the editor debounces the save):
+                     with t-on-change, a re-render before blur (moving a field,
+                     saving another input) reset the value being typed. -->
                 <input type="text" class="form-control form-control-sm"
                        t-att-class="{ 'mb-1': !props.isTemplate }"
                        t-att-placeholder="props.isTemplate ? 'Role name' : 'Name'"
                        t-att-value="signer.name"
                        t-att-readonly="props.readonly"
                        t-on-click.stop=""
-                       t-on-change="(ev) => this.onNameInput(ev, signer)"/>
+                       t-on-input="(ev) => this.onNameInput(ev, signer)"/>
                 <input t-if="!props.isTemplate" type="email" class="form-control form-control-sm"
                        placeholder="Email" t-att-value="signer.email"
                        t-att-readonly="props.readonly"
                        t-on-click.stop=""
-                       t-on-change="(ev) => this.onEmailInput(ev, signer)"/>
+                       t-on-input="(ev) => this.onEmailInput(ev, signer)"/>
             </div>
         </div>
     </t>

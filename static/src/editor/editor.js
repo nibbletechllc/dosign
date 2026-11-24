@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component, useState, onWillStart } from "@odoo/owl";
+import { Component, useState, onWillStart, onWillUnmount, useExternalListener } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
@@ -36,7 +36,20 @@ export class DosignEditor extends Component {
         this.participantModel = this.isTemplate ? "dosign.role" : "dosign.signer";
         this.participantField = this.isTemplate ? "role_id" : "signer_id";
 
+        // Edits are saved with a short debounce. Those saves must survive the
+        // editor: an edit made right before leaving (e.g. renaming a role then
+        // clicking "Done") would otherwise run after the component is
+        // destroyed, and the protected ORM of useService rejects it
+        // ("Component is destroyed"), losing the change. So saves go through
+        // the unprotected ORM and are flushed before leaving the editor.
+        this.persistOrm = this.env.services.orm;
         this._timers = {};
+        this._pendingSaves = {};
+        this._pendingVals = {};
+        this._inflightSaves = new Set();
+        onWillUnmount(() => this.flushSaves());
+        useExternalListener(window, "beforeunload", () => this.flushSaves());
+
         this.state = useState({
             loaded: false,
             name: "",
@@ -137,15 +150,59 @@ export class DosignEditor extends Component {
 
     // --- Persistence helpers -------------------------------------------
 
-    _debounce(key, fn) {
+    _debounce(key, save) {
         clearTimeout(this._timers[key]);
-        this._timers[key] = setTimeout(fn, SAVE_DELAY);
+        this._pendingSaves[key] = save;
+        this._timers[key] = setTimeout(() => this._runSave(key), SAVE_DELAY);
+    }
+
+    /** Run the pending save for `key` now (no-op if there is none). */
+    _runSave(key) {
+        const save = this._pendingSaves[key];
+        this._dropSave(key);
+        if (!save) {
+            return;
+        }
+        // `finally` keeps the rejection: a failed save still reaches the error
+        // dialog (or the caller awaiting flushSaves).
+        const tracked = Promise.resolve()
+            .then(save)
+            .finally(() => this._inflightSaves.delete(tracked));
+        this._inflightSaves.add(tracked);
+    }
+
+    /** Forget the pending save for `key`, e.g. when its record is deleted. */
+    _dropSave(key) {
+        clearTimeout(this._timers[key]);
+        delete this._timers[key];
+        delete this._pendingSaves[key];
+        delete this._pendingVals[key];
+    }
+
+    /**
+     * Debounced write of `vals` on one record. Values still pending for the
+     * same record are merged, so two quick edits (name then email, move then
+     * resize) are saved together instead of the last one replacing the first.
+     */
+    _scheduleWrite(key, model, id, vals) {
+        const merged = { ...(this._pendingVals[key] || {}), ...vals };
+        this._pendingVals[key] = merged;
+        this._debounce(key, () => this.persistOrm.write(model, [id], merged));
+    }
+
+    /** Send every pending save now and wait until all saves are done. */
+    async flushSaves() {
+        for (const key of Object.keys(this._pendingSaves)) {
+            this._runSave(key);
+        }
+        await Promise.all(this._inflightSaves);
     }
 
     onNameChange(ev) {
         const name = ev.target.value;
         this.state.name = name;
-        this._debounce("name", () => this.orm.write(this.recordModel, [this.recordId], { name }));
+        this._debounce("name", () =>
+            this.persistOrm.write(this.recordModel, [this.recordId], { name }));
     }
 
     // --- Participants (signers or roles) -------------------------------
@@ -180,11 +237,16 @@ export class DosignEditor extends Component {
         if (signer) {
             Object.assign(signer, vals);
         }
-        this._debounce(`p-${signerId}`, () =>
-            this.orm.write(this.participantModel, [signerId], vals));
+        this._scheduleWrite(`p-${signerId}`, this.participantModel, signerId, vals);
     }
 
     async removeSigner(signerId) {
+        this._dropSave(`p-${signerId}`);
+        for (const item of this.state.items) {
+            if (this.participantOf(item) === signerId) {
+                this._dropSave(`item-${item.id}`);
+            }
+        }
         await this.orm.unlink(this.participantModel, [signerId]);
         this.state.items = this.state.items.filter((it) => this.participantOf(it) !== signerId);
         this.state.signers = this.state.signers.filter((s) => s.id !== signerId);
@@ -241,20 +303,25 @@ export class DosignEditor extends Component {
         if (item) {
             Object.assign(item, vals);
         }
-        this._debounce(`item-${itemId}`, () => this.orm.write("dosign.item", [itemId], vals));
+        this._scheduleWrite(`item-${itemId}`, "dosign.item", itemId, vals);
     }
 
     async removeItem(itemId) {
+        this._dropSave(`item-${itemId}`);
         await this.orm.unlink("dosign.item", [itemId]);
         this.state.items = this.state.items.filter((it) => it.id !== itemId);
     }
 
     // --- Actions --------------------------------------------------------
 
+    // Every action below works on the saved record (validation, copy to a
+    // template, ...) or leaves the editor, so pending edits are saved first.
+
     send() {
         this.dialog.add(DosignSendDialog, {
             signers: this.state.signers,
             onConfirm: async (vals) => {
+                await this.flushSaves();
                 await this.orm.write("dosign.document", [this.recordId], vals);
                 await this.orm.call("dosign.document", "action_send", [[this.recordId]]);
                 this.notification.add(_t("Document sent to signers."), { type: "success" });
@@ -264,6 +331,7 @@ export class DosignEditor extends Component {
     }
 
     async signNow() {
+        await this.flushSaves();
         const action = await this.orm.call(
             "dosign.document", "action_sign_now", [[this.recordId]]);
         if (action) {
@@ -284,6 +352,7 @@ export class DosignEditor extends Component {
         if (!name) {
             return;
         }
+        await this.flushSaves();
         const action = await this.orm.call(
             "dosign.document", "action_save_as_template", [[this.recordId], name]);
         this.notification.add(_t("Template saved."), { type: "success" });
@@ -292,7 +361,8 @@ export class DosignEditor extends Component {
         }
     }
 
-    backToList() {
+    async backToList() {
+        await this.flushSaves();
         this.actionService.doAction(
             this.isTemplate ? "dosign.action_dosign_template" : "dosign.action_dosign_document");
     }
