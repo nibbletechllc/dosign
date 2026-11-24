@@ -133,6 +133,7 @@ export class DosignEditor extends Component {
             const entry = mapping[i];
             const [signerId] = await this.orm.create("dosign.signer", [{
                 document_id: this.recordId,
+                partner_id: entry.partner_id || false,
                 name: entry.name,
                 email: entry.email,
                 color: i % SIGNER_COLOR_COUNT,
